@@ -341,7 +341,11 @@ label.lbl{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:va
 .prob .pt{font-weight:600;font-size:14.5px;line-height:1.4}
 .prob .pm{font-size:12.5px;color:var(--muted);margin-top:3px;display:flex;flex-wrap:wrap;gap:6px 12px}
 .prob .pm code{font-size:11.5px}
-.prob .pn{font-size:13px;color:var(--ink-2);margin-top:4px}
+.prob .pn{font-size:13px;line-height:1.55;color:var(--ink-2);margin-top:8px;cursor:auto}
+.prob .pn p{margin:0;max-width:78ch}
+.prob .io{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:8px 0 0;padding:8px 12px;border-left:2px solid var(--line-2);background:color-mix(in srgb,var(--surface-2) 50%,transparent);border-radius:0 8px 8px 0}
+.prob .io dt{font:600 10.5px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.prob .io dd{margin:0;min-width:0;overflow-wrap:anywhere}
 .tier{font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;padding:5px 7px;border-radius:6px;white-space:nowrap}
 .tier.t1{background:var(--f-bad);color:var(--c-bad)}
 .tier.t2{background:var(--f-vis);color:var(--c-vis)}
@@ -4447,6 +4451,1696 @@ classes: [
   [3, 'Ch 20 · P9–P18', 'The remaining class-membership questions', ''],
 ],
 };
+/* problem statements, keyed by problem title: [description, input, output, example]. Titles shared across modules share a statement. */
+const STMT = {
+/* complexity */
+"Master Theorem drills: solve all 20 recurrences, then check the solutions": [
+  "A divide-and-conquer recurrence T(n) = a·T(n/b) + f(n) says the algorithm splits a problem of size n into a subproblems of size n/b and spends f(n) extra work splitting and combining. For each of 20 such recurrences, decide which case of the Master Theorem applies and give the tight asymptotic bound. Some recurrences break the theorem's conditions (a is not a constant, a < 1, or f(n) is not polynomially comparable); for those, say why the theorem cannot be used.",
+  "A list of 20 recurrences, each written as T(n) = a·T(n/b) + f(n).",
+  "For each recurrence: the bound Θ(…), or a short reason why the Master Theorem does not apply.",
+  "T(n) = 3T(n/2) + n² → Θ(n²) (f(n) dominates); T(n) = 4T(n/2) + n² → Θ(n² log n); T(n) = 2ⁿT(n/2) + nⁿ → does not apply (a is not a constant)."],
+"Running time of loop-based functions (read the code, give the Big-O)": [
+  "You are shown short functions made of loops, some nested and some with unusual update rules such as i *= 2, i /= 3 or a bound like i·i ≤ n. Work out how many times the innermost statement executes as a function of n, and express the running time in Big-O. Pay attention to whether an inner loop's bound depends on the outer loop variable.",
+  "The source code of a function that takes an integer n.",
+  "The running time of the function in Big-O notation, with a one-line justification.",
+  "for (i = 1; i ≤ n; i *= 2) for (j = 1; j ≤ n; j++) count++; → O(n log n): the outer loop runs log n times, the inner loop n times each."],
+"Write and solve the recurrence for a recursive function": [
+  "Given the code of a recursive function, model its running time as a recurrence. Count how many recursive calls each invocation makes (a), the input size passed to each call (n/b or n − b), and the non-recursive work done in one invocation (f(n)). Then solve the recurrence with the Master Theorem, substitution or a recursion tree.",
+  "The source code of a recursive function of n.",
+  "The recurrence T(n) and its solution in Big-O.",
+  "A function that does O(n) work and then calls itself twice on n/2 → T(n) = 2T(n/2) + O(n) → O(n log n)."],
+"Recurrences with √n using a change of variables (m = log n)": [
+  "Some recurrences shrink the input to its square root on each call, e.g. T(n) = 2T(√n) + log n. These do not fit the Master Theorem directly. Substitute n = 2ᵐ (so √n = 2^(m/2)) and define S(m) = T(2ᵐ), which turns the recurrence into a standard one in m. Solve that, then substitute m = log n back.",
+  "A recurrence in which T(n) depends on T(√n).",
+  "The asymptotic solution of T(n) in terms of n.",
+  "T(n) = 2T(√n) + log n → S(m) = 2S(m/2) + m → S(m) = Θ(m log m) → T(n) = Θ(log n · log log n)."],
+"Compute 9ⁿ, then improve it to O(log n) by repeated squaring": [
+  "Write a function that raises a number x to a non-negative integer power n. The naive version multiplies x by itself n times, which costs O(n) multiplications. Improve it using the identity xⁿ = (x^(n/2))² for even n and xⁿ = x·xⁿ⁻¹ for odd n, so that only O(log n) multiplications are needed.",
+  "A base x (e.g. 9) and an integer exponent n ≥ 0.",
+  "The value of xⁿ.",
+  "x = 9, n = 3 → 729; x = 2, n = 10 → 1024 (computed as 2 → 4 → 16 → 32 → 1024 with only a few multiplications)."],
+"Solve a recurrence with the recursion-tree method": [
+  "Draw the recursion tree of a recurrence: the root is the work done at the top level, its children are the work done by each recursive call, and so on down to the base cases. Compute the total work at each level, count the number of levels, and sum the series to get the overall running time. Use this when the Master Theorem does not apply or when you want to see why it gives the answer it does.",
+  "A recurrence such as T(n) = 3T(n/4) + n².",
+  "The per-level cost, the number of levels, and the total running time in Big-O.",
+  "T(n) = 3T(n/4) + n²: level i costs (3/16)ⁱ·n², a decreasing geometric series, so T(n) = Θ(n²)."],
+"Rank functions by order of growth": [
+  "You are given a list of functions of n. Arrange them from the slowest-growing to the fastest-growing, so that each function is O of the next one. When two functions are Θ of each other (they grow at the same rate up to a constant factor), place them in the same group.",
+  "A list of functions of n, e.g. n log n, 2ⁿ, n², log log n, n!, √n, 4^(log n).",
+  "The functions in increasing order of growth, with equal-growth functions grouped together.",
+  "log log n < √n < n log n < n² = Θ(4^(log n)) < 2ⁿ < n!"],
+"Amortised cost: doubling vs +1 array growth": [
+  "A dynamic array stores elements in a fixed-size block and, when the block is full, allocates a bigger block and copies every element across. Compare two growth policies: (a) grow by one slot each time it is full, and (b) double the capacity each time it is full. For n push operations starting from an empty array, count the total number of element copies under each policy and derive the amortised (average) cost per push.",
+  "The number of push operations n, and the growth policy (+1 or ×2).",
+  "The total number of copies for n pushes, and the amortised cost per push for each policy.",
+  "+1 policy: 1 + 2 + … + (n − 1) ≈ n²/2 copies → O(n) per push. Doubling: 1 + 2 + 4 + … < 2n copies → O(1) amortised per push."],
+"Multiple-choice asymptotics (exam style)": [
+  "Exam-style multiple-choice questions on asymptotic notation. Each question shows either a code fragment or a pair of functions and offers four candidate answers about O, Ω or Θ. Choose the correct one and be able to justify it in a sentence.",
+  "A question with a code fragment or functions, and four answer options.",
+  "The correct option and a short justification.",
+  "Which is true for f(n) = n² + 100n? (a) O(n) (b) Θ(n²) (c) Ω(n³) (d) Θ(n log n) → (b)."],
+"Is 2³ⁿ = O(2ⁿ)? Exponent identities": [
+  "Decide whether statements comparing exponential functions are true or false. Use exponent identities (2ⁿ⁺¹ = 2·2ⁿ, 2³ⁿ = 8ⁿ) and the definition of Big-O: f(n) = O(g(n)) if f(n) ≤ c·g(n) for some constant c and all large n. A constant factor is allowed; a factor that grows with n is not.",
+  "A statement such as 2³ⁿ = O(2ⁿ) or 2ⁿ⁺¹ = O(2ⁿ).",
+  "True or false, with a proof or counter-argument.",
+  "2ⁿ⁺¹ = 2·2ⁿ → true (c = 2). 2³ⁿ = 8ⁿ and 8ⁿ/2ⁿ = 4ⁿ grows without bound → false."],
+
+/* recursion & backtracking */
+"Towers of Hanoi: write it, then derive 2ⁿ − 1": [
+  "There are three pegs A, B and C. Peg A holds n disks of different sizes, stacked largest at the bottom. Move the whole stack to peg C, using B as a helper. Rules: move only one disk at a time, only the top disk of a peg can be moved, and a larger disk may never be placed on top of a smaller one. Write a recursive solution that prints every move, then prove that the minimum number of moves is 2ⁿ − 1.",
+  "The number of disks n, and the names of the source, helper and target pegs.",
+  "The sequence of moves, each written as 'move disk from X to Y'; the total number of moves is 2ⁿ − 1.",
+  "n = 2 → A→B, A→C, B→C (3 moves). n = 3 → 7 moves."],
+"Check whether an array is sorted, recursively": [
+  "Determine whether an array is sorted in non-decreasing order (each element is less than or equal to the next) without using a loop. The array is sorted if its first two elements are in order and the rest of the array, starting from the second element, is also sorted. An array of length 0 or 1 is sorted.",
+  "An array of integers.",
+  "true if the array is sorted in non-decreasing order, false otherwise.",
+  "[1, 2, 2, 5] → true; [3, 1, 4] → false."],
+"Generate all n-bit strings": [
+  "Generate every binary string of length n, i.e. every way to fill n positions with 0 or 1. Fill the positions one at a time: for each position try 0 and recurse, then try 1 and recurse. There are 2ⁿ such strings.",
+  "An integer n ≥ 1.",
+  "All 2ⁿ binary strings of length n, one per line (in any order).",
+  "n = 2 → 00, 01, 10, 11. n = 3 → 000, 001, 010, 011, 100, 101, 110, 111."],
+"Generate all length-n strings over the alphabet 0..k−1": [
+  "Generalise the n-bit problem: each of the n positions can hold any digit from 0 to k − 1, so there are kⁿ strings. Generate all of them by choosing a digit for each position in turn and recursing for the next position.",
+  "Two integers n (string length) and k (alphabet size).",
+  "All kⁿ strings of length n over the digits 0..k − 1.",
+  "n = 2, k = 3 → 00, 01, 02, 10, 11, 12, 20, 21, 22 (9 strings)."],
+"Largest region of connected 1s in a matrix": [
+  "You are given a matrix of 0s and 1s. Two cells containing 1 belong to the same region if they are neighbours, where neighbours include all 8 directions (horizontal, vertical and diagonal). Find the region with the most cells and return its size. If the matrix has no 1s, the answer is 0.",
+  "A 2D matrix of R rows and C columns containing only 0s and 1s.",
+  "An integer: the number of cells in the largest connected region of 1s.",
+  "[[1,1,0,0], [0,1,1,0], [0,0,1,0], [1,0,0,0]] → 5 (the diagonal chain of 1s from the top-left)."],
+"Solve a subtract-and-conquer recurrence": [
+  "Some recursive algorithms reduce the problem size by subtracting a constant instead of dividing it, giving recurrences of the form T(n) = a·T(n − b) + f(n). Solve such recurrences by unrolling them or by applying the subtract-and-conquer master theorem, which depends on whether a < 1, a = 1 or a > 1.",
+  "A recurrence of the form T(n) = a·T(n − b) + f(n).",
+  "The asymptotic solution of the recurrence.",
+  "T(n) = T(n − 1) + n → O(n²); T(n) = 2T(n − 1) + 1 → O(2ⁿ)."],
+"All permutations of a string": [
+  "A permutation is a rearrangement of all the characters of a string. Generate every permutation of the given string. If the string contains repeated characters, each distinct permutation should appear only once. A string of n distinct characters has n! permutations.",
+  "A string s of length n.",
+  "A list of all distinct permutations of s, in any order.",
+  "'abc' → abc, acb, bac, bca, cab, cba. 'aab' → aab, aba, baa."],
+"All combinations of a string": [
+  "A combination is a selection of characters from the string where order does not matter (it is a subset of the characters). Generate every non-empty combination of the characters of the string, of every possible length from 1 to n. A string of n distinct characters has 2ⁿ − 1 non-empty combinations.",
+  "A string s of n distinct characters.",
+  "All non-empty combinations of the characters of s, in any order.",
+  "'abc' → a, b, c, ab, ac, bc, abc."],
+"Find a word in a 2D grid of characters": [
+  "You are given a grid of letters and a word. Decide whether the word can be traced in the grid: start at any cell containing the first letter, then move step by step to a horizontally or vertically adjacent cell containing the next letter. The same cell cannot be used twice in one word.",
+  "A 2D grid of characters (R rows, C columns) and a string word.",
+  "true if the word can be traced in the grid, false otherwise.",
+  "grid = [[A,B,C,E], [S,F,C,S], [A,D,E,E]], word = 'ABCCED' → true; word = 'ABCB' → false (B would be reused)."],
+"N-Queens": [
+  "Place n queens on an n × n chessboard so that no two queens attack each other. A queen attacks every square in its row, its column and both of its diagonals, so no two queens may share a row, a column or a diagonal. Find every valid arrangement (or just count them).",
+  "An integer n ≥ 1, the size of the board and the number of queens.",
+  "All valid boards, each shown as n strings with 'Q' for a queen and '.' for an empty square; or the number of valid boards.",
+  "n = 4 → 2 solutions: ['.Q..', '...Q', 'Q...', '..Q.'] and ['..Q.', 'Q...', '...Q', '.Q..']. n = 8 → 92 solutions."],
+"Generate balanced parentheses": [
+  "A string of parentheses is balanced if every '(' has a matching ')' after it and, reading left to right, the number of ')' never exceeds the number of '(' seen so far. Generate every balanced string that uses exactly n opening and n closing parentheses.",
+  "An integer n ≥ 1, the number of pairs.",
+  "All balanced strings of length 2n, in any order.",
+  "n = 3 → ((())), (()()), (())(), ()(()), ()()()."],
+"Reverse a stack using only push and pop (recursion)": [
+  "Reverse the order of the elements in a stack, in place. You may only use the stack's own operations (push, pop, top, isEmpty) and recursion; no array, queue or second stack is allowed. After reversing, the element that was at the bottom is on top.",
+  "A stack of n elements.",
+  "The same stack with its elements in reverse order.",
+  "Bottom→top [1, 2, 3, 4] → bottom→top [4, 3, 2, 1]."],
+
+/* sorting */
+"Detect repeated elements: O(n²), then sort for O(n log n)": [
+  "Determine whether an array contains any value more than once. Start with the brute-force method of comparing every pair of elements (O(n²)). Then improve it: after sorting, equal values sit next to each other, so a single scan of adjacent pairs finds any duplicate in O(n log n) total.",
+  "An array of n integers.",
+  "true if some value appears at least twice, false if all values are distinct.",
+  "[3, 2, 1, 2] → true; [1, 2, 3, 4] → false."],
+"Do arrays A and B contain a pair summing to K?": [
+  "You are given two arrays A and B and a target K. Determine whether you can pick one element a from A and one element b from B such that a + b = K. Aim for better than checking all m·n pairs: sort and binary-search, or use a hash set.",
+  "Two integer arrays A (length m) and B (length n), and an integer K.",
+  "true if some a in A and b in B satisfy a + b = K (optionally return the pair), false otherwise.",
+  "A = [1, 4, 7], B = [3, 10, 5], K = 11 → true (1 + 10); same arrays, K = 20 → false."],
+"Which sorts are stable? Which are in-place?": [
+  "A sort is stable if elements with equal keys keep their original relative order (important when sorting records by one field after another). A sort is in-place if it uses only O(1) extra memory beyond the input array (recursion stack aside). Classify the common sorting algorithms on both properties and be ready to explain each answer.",
+  "The algorithms bubble sort, selection sort, insertion sort, merge sort, quicksort, heap sort and counting sort.",
+  "A table stating for each algorithm whether it is stable and whether it is in-place.",
+  "Insertion sort: stable, in-place. Merge sort: stable, not in-place (O(n) buffer). Quicksort: not stable, in-place. Heap sort: not stable, in-place."],
+"Sort an array of 0s, 1s and 2s": [
+  "The array contains only the values 0, 1 and 2, in any order. Rearrange it in place so that all 0s come first, then all 1s, then all 2s. Do it in a single pass with O(1) extra space (the Dutch national flag partition), without counting and rewriting.",
+  "An array of n integers, each equal to 0, 1 or 2.",
+  "The same array, sorted in place.",
+  "[2, 0, 2, 1, 1, 0] → [0, 0, 1, 1, 2, 2]."],
+"Element that appears the most times": [
+  "Find the value that occurs most frequently in an array. If several values tie for the highest count, return any one of them. Compare the brute-force O(n²) count, sorting and scanning runs in O(n log n), and a hash map of counts in O(n).",
+  "An array of n integers.",
+  "The most frequent value (and optionally its count).",
+  "[3, 1, 3, 2, 3, 1] → 3 (it appears 3 times)."],
+"Sort a 2 GB file of strings (external merge sort)": [
+  "A 2 GB text file contains one string per line. The machine has only about 100 MB of usable memory, so the file cannot be loaded and sorted at once. Design a method to produce a new file containing the same lines in sorted order, using the disk for intermediate data.",
+  "A 2 GB file of newline-separated strings, and a memory limit much smaller than the file.",
+  "A file with the same lines in sorted order, plus a description of the steps and their cost.",
+  "Read 100 MB at a time, sort each chunk in memory and write it as a sorted run (≈ 20 runs); then k-way merge the 20 runs with a min-heap into the output file."],
+"Nearly sorted array, each element at most k from its place": [
+  "In a k-sorted array, every element is at most k positions away from the position it would occupy if the array were fully sorted. Exploit this to sort the array faster than a general O(n log n) sort: the smallest remaining element is always within the next k + 1 positions.",
+  "An array of n integers and an integer k, where each element is at most k positions from its sorted position.",
+  "The array in sorted order, in O(n log k) time.",
+  "[3, 1, 2, 6, 4, 5], k = 2 → [1, 2, 3, 4, 5, 6]."],
+"Merge K sorted lists in O(n log K)": [
+  "You are given k linked lists, each already sorted in ascending order. Combine them into a single sorted linked list containing all the nodes. If there are n nodes in total, the solution should run in O(n log k), which is better than merging the lists one after another.",
+  "An array of k sorted linked lists (some may be empty).",
+  "One sorted linked list containing every node from the input lists.",
+  "[1→4→5, 1→3→4, 2→6] → 1→1→2→3→4→4→5→6."],
+"The best sort for linked lists": [
+  "Sort the nodes of a singly linked list in ascending order of value. A linked list has no random access (you cannot jump to the middle in O(1)), so algorithms that rely on indexing, such as heap sort or a standard quicksort, work poorly. Choose an algorithm that only needs sequential access, achieves O(n log n), and relinks nodes instead of copying values.",
+  "The head of a singly linked list of n nodes.",
+  "The head of the same nodes relinked in sorted order.",
+  "4→2→1→3 → 1→2→3→4."],
+"Sort n values in [1, n²] in O(n) (radix sort)": [
+  "Comparison sorts cannot beat O(n log n). But when the values are integers in a limited range, you can do better. Here each of the n values lies between 1 and n². Write each value in base n: it then has at most 2 digits, so two passes of a stable counting sort (radix sort) sort the array in O(n).",
+  "An array of n integers, each in the range 1..n².",
+  "The array in sorted order, produced in O(n) time.",
+  "n = 4, values in 1..16: [15, 3, 9, 12] → [3, 9, 12, 15]."],
+"Top 10 numbers from a file of billions": [
+  "A file contains billions of numbers, far more than fit in memory, and you can read it only as a stream. Find the 10 largest numbers. Keep a small structure of the best candidates seen so far and update it as each number arrives.",
+  "A stream (file) of N numbers, with N in the billions.",
+  "The 10 largest numbers in the stream.",
+  "Keep a min-heap of size 10: for each number, if it is larger than the heap's minimum, replace the minimum. Time O(N log 10), memory O(10)."],
+"Merge sorted B into A, which has room at the end": [
+  "Array A has length m + n: its first m positions hold sorted values and the last n positions are empty slots. Array B holds n sorted values. Merge B into A so that A contains all m + n values in sorted order. Do it in place without allocating a third array; merging from the back avoids overwriting values you still need.",
+  "Array A of length m + n (first m sorted, last n empty), integer m, sorted array B of length n.",
+  "A, modified in place to hold all m + n values in sorted order.",
+  "A = [1, 2, 3, _, _, _], m = 3, B = [2, 5, 6] → A = [1, 2, 2, 3, 5, 6]."],
+"Nuts and bolts matching (partition both sets)": [
+  "There are n nuts and n bolts, all of different sizes, and each nut fits exactly one bolt. You cannot compare two nuts or two bolts directly; the only allowed test is to try a nut on a bolt, which tells you whether the nut is too big, too small or fits. Pair every nut with its bolt in O(n log n) expected comparisons, using quicksort-style partitioning on both sets.",
+  "An array of n nuts and an array of n bolts (sizes hidden; only nut-vs-bolt comparisons are allowed).",
+  "Both arrays rearranged so that nut i fits bolt i for every i.",
+  "nuts = [@, #, $, %], bolts = [$, %, @, #] → nuts and bolts both ordered [@, #, $, %]."],
+"Rearrange so that A[0] ≤ A[1] ≥ A[2] ≤ …": [
+  "Reorder an array in place into a wiggle (zig-zag) pattern: the element at every odd index is greater than or equal to its neighbours. Formally, A[0] ≤ A[1] ≥ A[2] ≤ A[3] ≥ A[4] …. Many answers are valid; any one is accepted. This can be done in a single O(n) pass by swapping neighbours that break the pattern.",
+  "An array of n integers.",
+  "The same array, rearranged in place so that the wiggle condition holds.",
+  "[3, 5, 2, 1, 6, 4] → [3, 5, 1, 6, 2, 4] (one valid answer)."],
+"Merge overlapping intervals (sorting as preprocessing)": [
+  "You are given a collection of intervals, each [start, end]. Two intervals overlap if one starts before (or exactly when) the other ends. Merge every group of overlapping intervals into a single interval that covers them all, and return the merged intervals sorted by start.",
+  "An array of intervals [start, end] with start ≤ end, in any order.",
+  "An array of non-overlapping intervals that cover exactly the same points, sorted by start.",
+  "[[1,3], [2,6], [8,10], [15,18]] → [[1,6], [8,10], [15,18]]; [[1,4], [4,5]] → [[1,5]]."],
+"Top K frequent elements with bucket sort": [
+  "Given an array and an integer k, return the k values that occur most often. Do it faster than sorting all values by frequency: count occurrences in a hash map, then place each value into a bucket indexed by its count (counts are at most n), and read the buckets from highest to lowest.",
+  "An integer array of length n and an integer k (1 ≤ k ≤ number of distinct values).",
+  "The k most frequent values, in any order.",
+  "[1, 1, 1, 2, 2, 3], k = 2 → [1, 2]."],
+"Sorting MCQs: comparisons, swaps, worst cases": [
+  "Exam-style multiple-choice questions on sorting algorithms. Questions ask how many comparisons or swaps a specific algorithm makes on a given input, which inputs trigger its best or worst case, and which algorithm is most suitable for a given scenario (nearly sorted data, limited memory, linked lists, stability needed, and so on).",
+  "A multiple-choice question about a sorting algorithm.",
+  "The correct option, with a short explanation.",
+  "How many swaps does selection sort make on n elements in the worst case? → n − 1."],
+
+/* searching & selection */
+"Check for duplicates: brute force → sort → hash → in-place negation": [
+  "Decide whether an array contains a repeated value, and improve the solution step by step: compare all pairs (O(n²)), sort and compare neighbours (O(n log n)), use a hash set (O(n) time, O(n) space). Finally, if every value is guaranteed to lie in 0..n − 1, use the array itself as a 'seen' marker by negating A[|x|] for each x, giving O(n) time and O(1) extra space.",
+  "An array of n integers (for the last version, every value is in the range 0..n − 1).",
+  "true if any value appears more than once (optionally, the repeated value), false otherwise.",
+  "[3, 2, 1, 2, 0] → true (2 repeats); [0, 3, 1, 2] → false."],
+"Find the missing number in 1..n (sum vs XOR)": [
+  "An array of length n − 1 contains distinct integers from the range 1..n, so exactly one number from that range is missing. Find it in O(n) time and O(1) extra space. Compare the sum formula n(n + 1)/2 − Σ A (simple, but may overflow in fixed-width integers) with XOR-ing all of 1..n with all array elements (never overflows).",
+  "An array of n − 1 distinct integers, all in the range 1..n, and the value n.",
+  "The single number from 1..n that does not appear in the array.",
+  "[1, 2, 4, 6, 3, 7, 8], n = 8 → 5."],
+"The number occurring an odd number of times": [
+  "In the array, every value occurs an even number of times except exactly one value, which occurs an odd number of times. Find that value using O(n) time and O(1) extra space. Hint: x XOR x = 0 and x XOR 0 = x, so pairs cancel out.",
+  "An array of n integers in which exactly one value occurs an odd number of times.",
+  "The value that occurs an odd number of times.",
+  "[2, 3, 2, 4, 4] → 3; [1, 1, 5, 5, 5] → 5."],
+"Find the two repeating elements": [
+  "The array has n + 2 elements. It contains every integer from 1 to n exactly once, except for two numbers, each of which appears twice. Find those two numbers. Work through the approaches: brute force, sorting, counting, a hash set, the sum-and-product equations, XOR splitting, and in-place negation.",
+  "An array of n + 2 integers in the range 1..n, and the value n.",
+  "The two numbers that appear twice (in any order).",
+  "[4, 2, 4, 5, 2, 3, 1], n = 5 → 4 and 2."],
+"Two elements summing to K": [
+  "Find two different elements in the array whose sum equals the target K. If the array is sorted (or you are allowed to sort it), use two pointers moving inwards from both ends. If you must return the original indices, scan once while storing each value's index in a hash map and look up K − value.",
+  "An array of n integers and a target integer K.",
+  "The two elements (or their indices) that add up to K; or a signal that no such pair exists.",
+  "[2, 7, 11, 15], K = 9 → values 2 and 7 (indices 0 and 1)."],
+"Two elements whose sum is closest to zero": [
+  "The array contains both positive and negative numbers. Among all pairs of different elements, find the pair whose sum has the smallest absolute value, i.e. is closest to zero. Sorting the array and moving two pointers inward gives O(n log n).",
+  "An array of n ≥ 2 integers, positive and negative.",
+  "The two elements whose sum is closest to zero.",
+  "[1, 60, −10, 70, −80, 85] → −80 and 85 (sum 5)."],
+"Three elements summing to K / closest to zero": [
+  "Find three elements, at different positions, whose sum is exactly K; the common interview version lists every unique triplet summing to 0, without duplicate triplets. A variant asks for the triplet whose sum is closest to a target. Sort the array, fix the first element, and use two pointers on the rest for O(n²).",
+  "An array of n integers and a target K (0 for the standard version).",
+  "All unique triplets [a, b, c] with a + b + c = K; or, for the variant, the sum closest to the target.",
+  "[−1, 0, 1, 2, −1, −4], K = 0 → [[−1, −1, 2], [−1, 0, 1]]. Closest variant: [−1, 2, 1, −4], target 1 → 2."],
+"The peak of an increasing-then-decreasing array": [
+  "The array first strictly increases and then strictly decreases (it is a 'mountain'). Find the maximum element, which sits where the increase turns into the decrease. Do it in O(log n) with binary search: if A[mid] < A[mid + 1] you are still climbing, so the peak is to the right.",
+  "An array of n ≥ 3 integers that strictly increases and then strictly decreases.",
+  "The peak value (or its index).",
+  "[1, 3, 8, 12, 4, 2] → 12 (index 3)."],
+"Search in a rotated sorted array": [
+  "A sorted array of distinct values was rotated: some prefix was moved to the end, e.g. [1, 3, 4, 5, 7] rotated becomes [5, 7, 1, 3, 4]. You don't know the rotation point. Find the index of a target value in O(log n). At each binary-search step, at least one half is sorted; check whether the target lies in that half.",
+  "A rotated sorted array of n distinct integers and a target value.",
+  "The index of the target, or −1 if it is not present.",
+  "[4, 5, 6, 7, 0, 1, 2], target 0 → 4; target 3 → −1."],
+"Bitonic search": [
+  "A bitonic array first increases and then decreases. Determine whether a given value is in the array in O(log n). First binary-search for the peak, then run an ordinary binary search on the increasing part and a reversed binary search on the decreasing part.",
+  "A bitonic array of n distinct integers and a target value.",
+  "The index of the target, or −1 if it is not present.",
+  "[1, 3, 8, 12, 4, 2], target 4 → 4; target 7 → −1."],
+"First and last occurrence, and count, of x in a sorted array": [
+  "The array is sorted but may contain repeated values. For a given x, find the index of its first occurrence and of its last occurrence, each with its own binary search: when you find x, keep searching left (for the first) or right (for the last). The number of occurrences is last − first + 1. Everything runs in O(log n).",
+  "A sorted array of n integers and a value x.",
+  "The first index, the last index and the count of x; [−1, −1] and 0 if x is absent.",
+  "[1, 3, 3, 3, 6], x = 3 → first 1, last 3, count 3; x = 5 → [−1, −1], count 0."],
+"Majority element (Boyer–Moore voting)": [
+  "The majority element is the value that appears more than n/2 times. Assume it exists and find it in O(n) time and O(1) space. Boyer–Moore voting keeps a candidate and a counter: a matching element increments the counter, a different one decrements it, and when the counter hits 0 the next element becomes the new candidate.",
+  "An array of n integers that is guaranteed to have a majority element.",
+  "The majority element.",
+  "[2, 2, 1, 1, 2, 2, 3] → 2 (appears 4 times out of 7)."],
+"Egg drop from an n-storey building": [
+  "A building has n floors, and there is a critical floor f (0 ≤ f ≤ n): an egg dropped from any floor above f breaks, and an egg dropped from f or below survives and can be reused. You have exactly 2 eggs. Find the minimum number of drops that guarantees you can determine f, however unlucky the outcomes are.",
+  "The number of floors n (with 2 eggs).",
+  "The minimum number of drops needed in the worst case.",
+  "n = 2 → 2; n = 100 → 14 (drop the first egg from floors 14, 27, 39, …)."],
+"Local minimum in O(log n)": [
+  "A local minimum is an element that is smaller than each of its neighbours (the first and last elements have only one neighbour). Adjacent elements are distinct, so at least one local minimum always exists. Find any one in O(log n): compare A[mid] with A[mid + 1] and move towards the smaller side. LeetCode's twin asks for a local maximum (peak) instead.",
+  "An array of n integers with no two adjacent elements equal.",
+  "The index of any local minimum.",
+  "[9, 6, 3, 14, 5, 7, 4] → index 2 (value 3) or index 4 (value 5) or index 6 (value 4)."],
+"Search a row- and column-sorted matrix in O(n)": [
+  "In an n × n matrix, every row is sorted left to right and every column is sorted top to bottom. Decide whether a target value appears. Start at the top-right corner: if the current value is bigger than the target, move left; if smaller, move down. Each step discards a row or a column, giving O(n).",
+  "An n × n matrix sorted along rows and columns, and a target value.",
+  "true if the target is in the matrix (optionally its position), false otherwise.",
+  "[[1, 4, 7], [2, 5, 8], [3, 6, 9]], target 5 → true; target 10 → false."],
+"Separate even and odd numbers in one scan": [
+  "Rearrange the array in place so that every even number comes before every odd number. The order within the even group and within the odd group does not matter. Use two pointers from both ends that swap an odd number on the left with an even number on the right, finishing in a single pass.",
+  "An array of n integers.",
+  "The same array with all even numbers first, then all odd numbers.",
+  "[12, 34, 45, 9, 8, 90, 3] → [12, 34, 90, 8, 9, 45, 3] (one valid answer)."],
+"Maximum difference with the larger element after the smaller": [
+  "Find the maximum value of A[j] − A[i] over all index pairs with j > i, i.e. the larger element must come after the smaller one. If prices[i] is a stock price on day i, this is the best profit from buying once and selling once later. Track the minimum seen so far in one pass. If no positive difference exists, return 0.",
+  "An array of n integers (e.g. daily prices).",
+  "The maximum A[j] − A[i] with j > i, or 0 if every later value is smaller.",
+  "[7, 1, 5, 3, 6, 4] → 5 (buy at 1, sell at 6); [7, 6, 4, 3, 1] → 0."],
+"Trailing zeros in n!": [
+  "Count how many zeros n! (n factorial) ends with, without computing n!, which is astronomically large. Each trailing zero comes from a factor 10 = 2 × 5, and 5s are rarer than 2s, so count the factors of 5: ⌊n/5⌋ + ⌊n/25⌋ + ⌊n/125⌋ + ….",
+  "A non-negative integer n.",
+  "The number of trailing zeros in n!.",
+  "n = 5 → 1 (120); n = 25 → 6; n = 100 → 24."],
+"Maximum j − i such that A[j] > A[i]": [
+  "Find two indices i < j with A[j] > A[i] that are as far apart as possible, and return j − i. A brute-force double loop is O(n²); precomputing prefix minimums and suffix maximums, then walking both with two pointers, gives O(n).",
+  "An array of n integers.",
+  "The maximum value of j − i over all pairs with i < j and A[j] > A[i]; −1 (or 0) if no such pair exists.",
+  "[34, 8, 10, 3, 2, 80, 30, 33, 1] → 6 (i = 1, value 8; j = 7, value 33)."],
+"Min and max with 3n/2 comparisons": [
+  "Find both the smallest and the largest element of an array. Two separate scans need 2n − 2 comparisons. Do better by processing elements in pairs: compare the two elements of each pair with each other first, then compare only the smaller with the current minimum and the larger with the current maximum. That is 3 comparisons per 2 elements.",
+  "An array of n integers.",
+  "The minimum and the maximum, found with about 3n/2 comparisons.",
+  "[3, 5, 1, 8, 2, 9] → min 1, max 9 (in 7 comparisons instead of 10)."],
+"Second largest with n + log n − 2 comparisons": [
+  "Find the second largest element using as few comparisons as possible. Run a knockout tournament: elements are compared in pairs and winners advance, so finding the maximum takes n − 1 comparisons. The second largest must be one of the ⌈log n⌉ elements that lost directly to the winner, so a further ⌈log n⌉ − 1 comparisons find it.",
+  "An array of n distinct integers.",
+  "The second largest element, using at most n + ⌈log n⌉ − 2 comparisons.",
+  "[5, 12, 3, 9, 7, 1, 11, 4] → 11."],
+"k-th smallest: sort → heap → quickselect": [
+  "Find the element that would be at position k (1-based) if the array were sorted. Improve step by step: sort the array (O(n log n)); keep a max-heap of the k smallest elements seen (O(n log k)); then use quickselect, which partitions like quicksort but recurses into only one side (O(n) on average).",
+  "An unsorted array of n integers and an integer k with 1 ≤ k ≤ n.",
+  "The k-th smallest element.",
+  "[7, 10, 4, 3, 20, 15], k = 3 → 7. (For k-th largest, use k' = n − k + 1.)"],
+"k nearest neighbours of the median in O(n)": [
+  "Find the k numbers whose values are closest to the array's median. First find the median with linear-time selection. Then compute each element's distance |x − median|, select the k smallest distances with another linear-time selection, and return those elements. The whole thing is O(n).",
+  "An unsorted array of n distinct integers and an integer k.",
+  "The k elements whose values are closest to the median (in any order).",
+  "[7, 14, 10, 12, 2, 11, 29, 3, 4], k = 3 → median 10 → [10, 11, 12]."],
+"Minimum window containing all characters": [
+  "Find the shortest contiguous substring of S that contains every character of T, including repeats (if T has two 'A's, the window needs at least two 'A's). Use a sliding window: expand the right end until the window is valid, then shrink from the left while it stays valid, recording the smallest valid window.",
+  "Two strings S (length n) and T (length m).",
+  "The shortest substring of S that contains all characters of T, or an empty string if none exists.",
+  "S = 'ADOBECODEBANC', T = 'ABC' → 'BANC'; S = 'a', T = 'aa' → ''."],
+"Longest substring without repeating characters": [
+  "Find the longest contiguous substring in which no character appears twice, and return its length. Use a sliding window that extends to the right and, when a repeated character enters, jumps the left edge past that character's previous occurrence.",
+  "A string s of length n.",
+  "An integer: the length of the longest substring with all distinct characters.",
+  "'abcabcbb' → 3 ('abc'); 'bbbbb' → 1; 'pwwkew' → 3 ('wke')."],
+"Median of medians: groups of 3 vs 5 vs 7": [
+  "The deterministic linear-time selection algorithm (median of medians) splits the array into groups of 5, finds each group's median, recursively finds the median of those medians, and uses it as the pivot. Work out the recurrence for its running time with groups of 5, then redo the analysis with groups of 3 and of 7, and explain why groups of 3 fail to give linear time.",
+  "The group size g (3, 5 or 7).",
+  "The recurrence T(n) for that group size and its solution.",
+  "g = 5 → T(n) = T(n/5) + T(7n/10) + O(n) = O(n). g = 3 → T(n) = T(n/3) + T(2n/3) + O(n) = O(n log n)."],
+
+/* hashing */
+"Implement separate chaining and analyse each operation": [
+  "Build a hash map from scratch. Keep an array of buckets; a hash function maps each key to a bucket index, and each bucket holds a list of (key, value) entries, so keys that collide share a bucket. Support inserting or updating a key, looking up a key, and removing a key. Resize when the load factor gets too high, and state the average and worst-case cost of each operation.",
+  "A sequence of operations: put(key, value), get(key), remove(key).",
+  "For get: the stored value or −1 if the key is absent. Plus the average-case and worst-case complexity of each operation.",
+  "put(1, 1), put(2, 2), get(1) → 1, get(3) → −1, put(2, 1), get(2) → 1, remove(2), get(2) → −1."],
+"Remove duplicate characters from an array, in one pass": [
+  "Remove every repeated character from a character array, keeping only the first occurrence of each character and preserving the original order. Do it in a single left-to-right pass, using a hash set (or a 256-entry boolean table) to remember which characters have already been seen.",
+  "A string (character array) of length n.",
+  "The string with later occurrences of each character removed.",
+  "'programming' → 'progamin'; 'aabbcc' → 'abc'."],
+"Do two arrays contain the same set of numbers?": [
+  "Decide whether two unsorted arrays contain exactly the same distinct values. The order and the number of repeats don't matter; only the set of distinct values does. Put the values of each array into a hash set and compare the sets (or sort both and compare distinct values).",
+  "Two integer arrays A and B (lengths may differ).",
+  "true if the set of distinct values in A equals the set of distinct values in B, false otherwise.",
+  "[2, 5, 6, 8, 10, 2, 2] and [2, 5, 5, 8, 10, 5, 6] → true (both are {2, 5, 6, 8, 10}); [1, 2] and [1, 3] → false."],
+"Report all symmetric pairs (i, j) and (j, i)": [
+  "You are given a list of ordered pairs. A pair (a, b) is symmetric if the list also contains (b, a). Report every symmetric pair. Scan the list once, storing each pair in a hash map from first to second element, and check whether the reversed pair was already stored.",
+  "A list of n ordered pairs of integers.",
+  "Every pair (a, b) for which (b, a) also appears in the list.",
+  "[(1, 3), (2, 6), (3, 5), (7, 4), (5, 3), (8, 7)] → (3, 5) and (5, 3)."],
+"Detect a loop in a linked list with hashing": [
+  "A linked list has a loop if following next pointers from the head eventually revisits a node, instead of reaching null. Walk the list and store each visited node (the node itself, not its value, since values can repeat) in a hash set. If you reach a node that is already in the set, there is a loop.",
+  "The head of a singly linked list.",
+  "true if the list contains a loop, false if it ends in null.",
+  "3→2→0→−4, where −4's next points back to 2 → true; 1→2→null → false."],
+"A pair from sets A and B that sums to K": [
+  "Given two sets of numbers A and B and a target K, find one element a from A and one element b from B with a + b = K. Insert all elements of A into a hash set, then for each b in B check whether K − b is in the set. This takes O(n) expected time.",
+  "Two sets of integers A and B, each of size about n, and an integer K.",
+  "A pair (a, b) with a ∈ A, b ∈ B and a + b = K, or a signal that no such pair exists.",
+  "A = {1, 4, 7}, B = {3, 10, 5}, K = 11 → (1, 10)."],
+"Remove the characters of one string from another": [
+  "Delete from string S1 every character that occurs anywhere in string S2, and keep the remaining characters of S1 in their original order. Put S2's characters in a hash set (or boolean table), then make one pass over S1, keeping only the characters not in the set.",
+  "Two strings S1 and S2.",
+  "S1 with every character of S2 removed.",
+  "S1 = 'blockchain', S2 = 'cola' → 'bkhin'."],
+"First non-repeated character": [
+  "Find the first character in the string (scanning left to right) that occurs exactly once in the whole string. Count every character's occurrences in a first pass, then scan again and return the first character whose count is 1.",
+  "A string s of length n.",
+  "The first character that appears exactly once (or its index), or a signal (e.g. −1) if every character repeats.",
+  "'abzddab' → 'z'; 'leetcode' → 'l' (index 0); 'aabb' → −1."],
+"First repeating letter in a string": [
+  "Scan the string from left to right and stop at the first character that you have already seen earlier in the string, i.e. the character whose second occurrence comes earliest. Keep a set of characters seen so far.",
+  "A string s that contains at least one repeated character.",
+  "The first character to appear for the second time.",
+  "'abccbaacz' → 'c' (its second occurrence at index 3 comes before any other repeat)."],
+"Pair with sum K using a hash table": [
+  "Find two elements of the array (at different positions) that add up to K, in one O(n) pass. For each element x, check whether K − x is already in a hash table of the elements seen so far; if not, add x and continue.",
+  "An array of n integers and a target K.",
+  "The two values (or their indices) that sum to K, or a signal that no such pair exists.",
+  "[1, 4, 45, 6, 10, 8], K = 16 → 6 and 10."],
+"Find the duplicate line in a file too big for memory": [
+  "A huge text file cannot fit in memory, and exactly one line appears in it twice. Find that line. Hash each line to one of many smaller bucket files on disk, so that identical lines always land in the same bucket; then each bucket fits in memory and can be checked with a hash set.",
+  "A very large file of text lines, with exactly one line occurring twice.",
+  "The duplicated line.",
+  "Split a 100 GB file into 1,000 bucket files by hash(line) mod 1000; scan each bucket with an in-memory hash set until the repeat is found."],
+"Implement a Bloom filter": [
+  "A Bloom filter is a compact, probabilistic set. It uses an array of m bits and k independent hash functions. Adding x sets the k bits at positions h1(x)…hk(x). Querying x checks those k bits: if any is 0, x was definitely never added; if all are 1, x was probably added (false positives are possible, false negatives are not). Implement add and mightContain, and explain how m and k affect the false-positive rate.",
+  "The bit-array size m, the number of hash functions k, and a sequence of add(x) / mightContain(x) operations.",
+  "For each mightContain: false (definitely absent) or true (probably present).",
+  "add('cat'), add('dog'); mightContain('cat') → true; mightContain('fish') → false (or occasionally a false-positive true)."],
+"Group anagrams by a canonical key": [
+  "Two words are anagrams if one is a rearrangement of the other's letters. Group the input words so that each group contains words that are anagrams of each other. Give each word a canonical key (its letters sorted, or a 26-letter count signature) and use a hash map from key to group.",
+  "An array of n lowercase words.",
+  "A list of groups (lists of words); groups and the words inside them may be in any order.",
+  "['eat', 'tea', 'tan', 'ate', 'nat', 'bat'] → [['eat', 'tea', 'ate'], ['tan', 'nat'], ['bat']]."],
+"Subarray sum equals k (prefix sums + map)": [
+  "Count how many contiguous subarrays have elements summing exactly to k. The array may contain negative numbers, so a sliding window doesn't work. Keep a running prefix sum and a hash map counting how many times each prefix sum has occurred: each earlier prefix equal to (current − k) marks a subarray ending here with sum k.",
+  "An integer array of length n (values may be negative) and an integer k.",
+  "The number of contiguous subarrays whose sum equals k.",
+  "[1, 1, 1], k = 2 → 2; [1, 2, 3], k = 3 → 2 ([1, 2] and [3])."],
+"LRU cache (hash map + doubly linked list)": [
+  "Design a key-value cache with a fixed capacity. get(key) returns the value if present and marks the key as most recently used. put(key, value) inserts or updates the key and marks it most recently used; if this pushes the cache over capacity, the least recently used key is evicted first. Both operations must run in O(1).",
+  "A capacity, followed by a sequence of get(key) and put(key, value) operations.",
+  "For each get: the value, or −1 if the key is not in the cache.",
+  "capacity 2: put(1, 1), put(2, 2), get(1) → 1, put(3, 3) evicts key 2, get(2) → −1, put(4, 4) evicts key 1, get(1) → −1, get(3) → 3, get(4) → 4."],
+"Longest consecutive sequence in O(n)": [
+  "Find the length of the longest set of values that form a run of consecutive integers (x, x + 1, x + 2, …). The values can be anywhere in the array; only their values matter, not their positions. Put everything in a hash set and only start counting from values x where x − 1 is not in the set, giving O(n).",
+  "An unsorted array of n integers (may contain duplicates).",
+  "The length of the longest run of consecutive integer values.",
+  "[100, 4, 200, 1, 3, 2] → 4 (1, 2, 3, 4); [0, 3, 7, 2, 5, 8, 4, 6, 0, 1] → 9."],
+
+/* linked lists */
+"Implement a stack using a linked list": [
+  "Implement a stack (last in, first out) whose storage is a singly linked list. The top of the stack is the head of the list, so push inserts a new head and pop removes the head; both are O(1) and the stack never needs resizing. Also support peek (read the top without removing it) and isEmpty.",
+  "A sequence of operations: push(x), pop(), peek(), isEmpty().",
+  "For pop and peek, the top value (or an error if the stack is empty); for isEmpty, true or false.",
+  "push(1), push(2), peek() → 2, pop() → 2, pop() → 1, isEmpty() → true."],
+"n-th node from the end, improved down to one scan": [
+  "Find the node that is n positions from the end of a singly linked list (n = 1 is the last node). The simple way counts the length L first and then walks L − n steps. Do it in a single pass: move a lead pointer n steps ahead, then move both pointers together; when the lead reaches the end, the trailing pointer is at the answer. A common variant removes that node.",
+  "The head of a singly linked list and an integer n (1 ≤ n ≤ length).",
+  "The n-th node from the end (or the list with that node removed).",
+  "1→2→3→4→5, n = 2 → node 4 (removal variant → 1→2→3→5)."],
+"Detect a cycle: hashing → Floyd": [
+  "Decide whether a linked list contains a cycle. First solve it with a hash set of visited nodes (O(n) space). Then use Floyd's tortoise and hare: a slow pointer moves one step and a fast pointer two steps at a time. If there is a cycle they eventually meet; if not, the fast pointer reaches null. This uses O(1) space.",
+  "The head of a singly linked list.",
+  "true if the list has a cycle, false otherwise.",
+  "3→2→0→−4→(back to 2) → true; 1→2→null → false."],
+"Find the start of the loop, and prove why it works": [
+  "If a linked list has a cycle, return the first node of the cycle (the node where the tail's pointer re-enters the list); if there is no cycle, return null. Use Floyd's algorithm: after slow and fast meet, reset one pointer to the head and advance both one step at a time; they meet again at the cycle's start. Explain why using the distances travelled.",
+  "The head of a singly linked list.",
+  "The node where the cycle begins, or null if there is no cycle.",
+  "3→2→0→−4, with −4 pointing back to 2 → the node with value 2."],
+"Length of the loop": [
+  "If the linked list contains a cycle, count how many nodes are in the cycle. Once Floyd's slow and fast pointers meet inside the cycle, keep one pointer fixed and walk the other around the cycle until it comes back, counting the steps.",
+  "The head of a singly linked list that may contain a cycle.",
+  "The number of nodes in the cycle, or 0 if there is no cycle.",
+  "1→2→3→4→5→(back to 3) → 3 (nodes 3, 4, 5)."],
+"Insert into a sorted linked list": [
+  "Insert a new node with a given value into a singly linked list that is sorted in ascending order, so the list stays sorted. Handle the edge cases: an empty list, inserting before the head, and inserting after the last node.",
+  "The head of a sorted singly linked list and a value to insert.",
+  "The head of the list after insertion (it changes when the new value is the smallest).",
+  "1→3→7, insert 5 → 1→3→5→7; insert 0 → 0→1→3→7."],
+"Reverse a singly linked list, iteratively and recursively": [
+  "Reverse the direction of every next pointer in a singly linked list, so the last node becomes the head. Write two versions: an iterative one that walks the list with prev, current and next pointers (O(1) space), and a recursive one that reverses the rest of the list and then attaches the current node at the end.",
+  "The head of a singly linked list (possibly empty).",
+  "The head of the reversed list.",
+  "1→2→3→4→5 → 5→4→3→2→1; empty → empty."],
+"Intersection point of two lists (six approaches)": [
+  "Two singly linked lists start separately but, from some node onwards, share all their nodes (they form a Y shape). Find the first shared node, comparing nodes by identity, not value. If the lists never meet, return null. The lists may have different lengths. Compare approaches: brute force, a hash set, stacks, length difference, and the two-pointer trick that switches heads.",
+  "The heads of two singly linked lists.",
+  "The first node common to both lists, or null.",
+  "A: 4→1→8→4→5, B: 5→6→1→8→4→5, sharing the nodes from 8 onwards → the node with value 8."],
+"Middle of the list in one scan": [
+  "Find the middle node of a singly linked list without first counting its length. Move a slow pointer one step and a fast pointer two steps at a time; when the fast pointer reaches the end, the slow pointer is in the middle. For an even number of nodes, return the second of the two middle nodes.",
+  "The head of a non-empty singly linked list.",
+  "The middle node.",
+  "1→2→3→4→5 → node 3; 1→2→3→4→5→6 → node 4."],
+"Print from the end; is the length even or odd?": [
+  "Two short tasks. (1) Print the values of a singly linked list from the last node back to the first, without reversing or otherwise changing the list (use recursion or a stack). (2) Decide whether the list has an even or odd number of nodes by moving a pointer two nodes at a time and seeing whether it ends on the last node or on null.",
+  "The head of a singly linked list.",
+  "(1) The values printed in reverse order. (2) 'even' or 'odd'.",
+  "1→2→3→4 → prints 4 3 2 1; length is even."],
+"Merge two sorted lists": [
+  "Combine two linked lists, each sorted in ascending order, into one sorted list. Don't create new nodes: splice the existing nodes together by repeatedly taking the smaller head. A dummy head node keeps the code simple.",
+  "The heads of two sorted singly linked lists (either may be empty).",
+  "The head of the merged sorted list.",
+  "1→2→4 and 1→3→4 → 1→1→2→3→4→4."],
+"Reverse in pairs": [
+  "Swap every two adjacent nodes of a linked list: the 1st with the 2nd, the 3rd with the 4th, and so on. Change the links between nodes rather than swapping the values stored in them. If the list has an odd number of nodes, the last node stays where it is.",
+  "The head of a singly linked list.",
+  "The head of the list after swapping each pair.",
+  "1→2→3→4 → 2→1→4→3; 1→2→3→4→5 → 2→1→4→3→5."],
+"Convert a binary tree to a doubly linked list": [
+  "Flatten a binary tree into a doubly linked list without creating new nodes: reuse each node's left pointer as 'previous' and its right pointer as 'next'. The nodes must appear in the list in inorder sequence (left subtree, node, right subtree). Return the head of the list (the leftmost node).",
+  "The root of a binary tree.",
+  "The head of the doubly linked list, whose order is the tree's inorder traversal.",
+  "Tree with root 4, left 2 (children 1, 3), right 5 → 1⇄2⇄3⇄4⇄5."],
+"Sort a linked list": [
+  "Sort the nodes of a singly linked list into ascending order in O(n log n) time. Use merge sort: find the middle with slow and fast pointers, split the list into two halves, sort each half recursively, then merge the two sorted halves by relinking nodes.",
+  "The head of a singly linked list of n nodes.",
+  "The head of the sorted list.",
+  "4→2→1→3 → 1→2→3→4; −1→5→3→4→0 → −1→0→3→4→5."],
+"Is the list a palindrome?": [
+  "Decide whether the sequence of values in a singly linked list reads the same forwards and backwards. Do it in O(n) time and O(1) extra space: find the middle, reverse the second half, compare it with the first half node by node, and (ideally) restore the list.",
+  "The head of a singly linked list.",
+  "true if the list's values form a palindrome, false otherwise.",
+  "1→2→2→1 → true; 1→2→3→2→1 → true; 1→2 → false."],
+"Reverse blocks of K nodes": [
+  "Split the list into consecutive blocks of k nodes and reverse the order of nodes inside each block. If the final block has fewer than k nodes, leave it unchanged. Relink the nodes rather than changing their values, using O(1) extra space.",
+  "The head of a singly linked list and a positive integer k.",
+  "The head of the list after every full block of k nodes has been reversed.",
+  "1→2→3→4→5, k = 2 → 2→1→4→3→5; k = 3 → 3→2→1→4→5."],
+"The Josephus circle": [
+  "n people, numbered 1 to n, stand in a circle. Starting from person 1, count k people clockwise (including the starting person); the k-th person is eliminated. Counting resumes from the next person still in the circle, and this repeats until only one person remains. Simulate it with a circular linked list, or use the recurrence J(n) = (J(n − 1) + k) mod n.",
+  "Two integers: n (number of people) and k (the count).",
+  "The number of the last person remaining.",
+  "n = 5, k = 2 → eliminated in order 2, 4, 1, 5 → survivor 3. n = 6, k = 5 → 1."],
+"Clone a list with random pointers (with and without extra space)": [
+  "Each node of a linked list has a value, a next pointer and a random pointer that can point to any node in the list or be null. Create a deep copy: a brand-new list of new nodes whose next and random pointers point to the corresponding new nodes, never back into the original list. First use a hash map from old node to new node; then do it in O(1) extra space by interleaving copies with the originals.",
+  "The head of a linked list whose nodes have next and random pointers.",
+  "The head of a deep copy with the same structure.",
+  "[[7, null], [13, 0], [11, 4], [10, 2], [1, 0]] (each pair is value and random index) → a new list with the same values and random links."],
+"Delete a node given only a pointer to it": [
+  "You are given a reference to a node somewhere inside a singly linked list, but not the head, so you cannot reach the previous node. Remove that node's value from the list. It is guaranteed not to be the last node. Copy the next node's value into this node, then unlink the next node.",
+  "A reference to a node of a singly linked list (not the tail).",
+  "Nothing is returned; the list no longer contains the given node's value.",
+  "List 4→5→1→9, given the node 5 → the list becomes 4→1→9."],
+"Even numbers before odd numbers": [
+  "Rearrange a linked list so that every node with an even value comes before every node with an odd value. Within the evens and within the odds, keep the original relative order. Build two sub-lists (evens and odds) as you walk the list, then join them. (LeetCode's twin groups by position, odd indices first, rather than by value.)",
+  "The head of a singly linked list of integers.",
+  "The head of the rearranged list: even values first, then odd values, each group in original order.",
+  "17→15→8→12→10→5→4 → 8→12→10→4→17→15→5."],
+"Add two numbers stored as lists (most significant digit first)": [
+  "Two non-negative integers are stored as linked lists with one digit per node, most significant digit first (so the head is the leading digit). Add the two numbers and return the sum in the same format. Because addition starts from the least significant digit, use stacks or recursion (or reverse the lists) to process the digits from the end, carrying as needed.",
+  "The heads of two linked lists of digits 0–9, most significant digit first, with no leading zeros.",
+  "The head of a linked list holding the sum, most significant digit first.",
+  "7→2→4→3 (7243) + 5→6→4 (564) → 7→8→0→7 (7807)."],
+"Reorder as A1, An, A2, An−1, …": [
+  "Rearrange the list so that it alternates between nodes from the front and nodes from the back: first, last, second, second-to-last, and so on. Do it in place by relinking nodes: find the middle, reverse the second half, then weave the two halves together.",
+  "The head of a singly linked list L1→L2→…→Ln.",
+  "The same nodes reordered as L1→Ln→L2→Ln−1→L3→…",
+  "1→2→3→4 → 1→4→2→3; 1→2→3→4→5 → 1→5→2→4→3."],
+"Modular, fractional and √n-th node puzzles": [
+  "Three single-pass puzzles where you don't know the list length n in advance. (1) Modular node: find the last node whose 1-based position is divisible by k. (2) Fractional node: find the node at position ⌈n/k⌉. (3) √n-th node: find the node at position ⌊√n⌋. Each uses a second pointer that advances on a schedule as the main pointer walks the list.",
+  "The head of a singly linked list and an integer k (for the first two puzzles).",
+  "The requested node for each puzzle.",
+  "List 1→…→19, k = 3 → modular node 18; fractional node at position ⌈19/3⌉ = 7; √n-th node at position 4."],
+"Implement a skip list": [
+  "A skip list is a sorted linked list with extra 'express lane' levels. Each node is promoted to the next level up with probability 1/2, so higher levels skip over many nodes. Searching starts at the top level and drops down a level whenever the next key is too large. Implement search, insert and delete in O(log n) expected time.",
+  "A sequence of operations: add(x), search(x), erase(x).",
+  "For search: true or false. For erase: true if x was present and one copy was removed, false otherwise.",
+  "add(1), add(2), add(3), search(0) → false, add(4), search(1) → true, erase(0) → false, erase(1) → true, search(1) → false."],
+
+/* stacks */
+"Balancing of symbols": [
+  "Check whether the brackets in a string are properly balanced. Every opening bracket ( [ { must be closed by a closing bracket of the same type, and brackets must close in the reverse order they opened (correct nesting). Other characters are ignored. Push opening brackets onto a stack; for each closing bracket, the top of the stack must be its matching opener.",
+  "A string that may contain the brackets ( ) [ ] { } and other characters.",
+  "true if the brackets are balanced, false otherwise.",
+  "'{[()]}' → true; '([)]' → false; '((' → false; 'a(b)c' → true."],
+"Infix to postfix conversion": [
+  "Infix notation puts operators between operands (A + B), and needs precedence rules and parentheses. Postfix notation puts operators after their operands (A B +) and needs neither. Convert an infix expression to postfix with an operator stack: output operands immediately, pop higher- or equal-precedence operators before pushing a new one, and pop back to the '(' on each ')'.",
+  "An infix expression made of operands, the operators + − * / ^, and parentheses.",
+  "The equivalent postfix expression.",
+  "'A * B - (C + D) + E' → 'A B * C D + - E +'; 'A + B * C' → 'A B C * +'."],
+"Evaluate a postfix expression": [
+  "Compute the value of an expression written in postfix (reverse Polish) notation. Read the tokens from left to right: push numbers onto a stack; for an operator, pop the top two numbers (the second popped is the left operand), apply the operator, and push the result. At the end the stack holds the answer. Division truncates toward zero.",
+  "A list of tokens: integers and the operators + − * /.",
+  "The integer value of the expression.",
+  "['1', '2', '3', '*', '+', '5', '-'] → 2; ['2', '1', '+', '3', '*'] → 9."],
+"Evaluate infix in one pass with two stacks": [
+  "Evaluate an ordinary infix arithmetic expression directly, without converting it to postfix first. Scan it once, keeping one stack of numbers and one stack of operators. Before pushing an operator, apply any operators on the stack with higher or equal precedence; on ')', apply operators back to the matching '('. Respect the usual precedence (* and / before + and −).",
+  "A string containing non-negative integers, + − * /, parentheses and spaces.",
+  "The integer value of the expression.",
+  "'3 + 2 * (4 - 1)' → 9; ' 3/2 ' → 1; '2*(5+5*2)/3+(6/2+8)' → 21."],
+"A stack with O(1) getMinimum, then with less space": [
+  "Design a stack that supports push, pop and top as usual, plus getMinimum, which returns the smallest element currently in the stack. All four must run in O(1). First keep a second stack that records the minimum at every level; then save space by pushing to the auxiliary stack only when a new value is less than or equal to the current minimum.",
+  "A sequence of operations: push(x), pop(), top(), getMinimum().",
+  "The values returned by top() and getMinimum().",
+  "push(−2), push(0), push(−3), getMinimum() → −3, pop(), top() → 0, getMinimum() → −2."],
+"Palindrome check around a middle marker": [
+  "A string consists of two halves separated by a single marker character X, e.g. 'ababXbaba'. Decide whether the part after X is exactly the reverse of the part before X. Push each character before X onto a stack, then pop one for each character after X and compare.",
+  "A string containing exactly one marker character X.",
+  "true if the part after X is the reverse of the part before it, false otherwise.",
+  "'ababXbaba' → true; 'abXab' → false."],
+"Reverse a stack using only push and pop": [
+  "Reverse the order of the elements in a stack, in place. You may only use the stack's own operations (push, pop, top, isEmpty) and recursion; no array, queue or second stack is allowed. After reversing, the element that was at the bottom is on top.",
+  "A stack of n elements.",
+  "The same stack with its elements in reverse order.",
+  "Bottom→top [1, 2, 3, 4] → bottom→top [4, 3, 2, 1]."],
+"Queue using two stacks": [
+  "Implement a first-in-first-out queue using only two stacks and their push, pop, peek and isEmpty operations. New elements go onto an input stack. To dequeue, pop from an output stack; when the output stack is empty, first move every element from the input stack to it, which reverses their order. Each element is moved at most once, so operations are O(1) amortised.",
+  "A sequence of operations: enqueue(x), dequeue(), peek(), isEmpty().",
+  "For dequeue and peek, the element at the front of the queue; for isEmpty, true or false.",
+  "enqueue(1), enqueue(2), peek() → 1, dequeue() → 1, isEmpty() → false."],
+"Stack using two queues": [
+  "Implement a last-in-first-out stack using only queues and their enqueue, dequeue, peek, size and isEmpty operations. One approach makes push expensive: enqueue the new element into an empty queue, then move every element of the other queue behind it, so the newest element is always at the front. Another makes pop expensive instead.",
+  "A sequence of operations: push(x), pop(), top(), isEmpty().",
+  "For pop and top, the most recently pushed element still in the stack; for isEmpty, true or false.",
+  "push(1), push(2), top() → 2, pop() → 2, isEmpty() → false."],
+"Two, three or m stacks in one array": [
+  "Store several stacks in one fixed-size array. For two stacks, grow one from the left end and the other from the right end, so neither overflows until the array is completely full. Then extend the idea to three stacks (e.g. with a movable middle stack) and to m stacks (e.g. with per-stack free lists or shifting), and analyse the cost of each operation.",
+  "An array size n, the number of stacks, and a sequence of push(stackId, x) / pop(stackId) operations.",
+  "Popped values, and an overflow error only when the array has no free slot left.",
+  "n = 5, two stacks: push(1, a), push(2, b), push(1, c) → array [a, c, _, _, b]; pop(2) → b."],
+"Which push/pop sequences are possible?": [
+  "The numbers 1, 2, …, n are pushed onto a stack in that order, and pops can happen at any time in between. Each pop outputs the top number. Given a proposed output sequence, decide whether some interleaving of pushes and pops can produce it. Simulate: push in order until the top equals the next number you need to output, then pop.",
+  "An integer n and a permutation of 1..n (the proposed output order).",
+  "true if the output order is achievable with a stack, false otherwise.",
+  "n = 5: 4 5 3 2 1 → true; 4 3 5 1 2 → false (1 is buried under 2 when it is needed)."],
+"Finding spans in O(n)": [
+  "The span of day i is the number of consecutive days ending on day i (including it) on which the price was less than or equal to day i's price. Compute the span for every day in O(n) total time. Keep a stack of indexes of days with prices that are still 'visible', i.e. greater than every later price seen so far.",
+  "An array of n daily prices.",
+  "An array of n spans.",
+  "[100, 80, 60, 70, 60, 75, 85] → [1, 1, 1, 2, 1, 4, 6]."],
+"Largest rectangle under a histogram": [
+  "A histogram is a row of adjacent bars of width 1 with given heights. Find the largest-area rectangle that fits completely inside the histogram; it may span several bars, and its height is limited by the shortest bar it covers. Use a monotonic stack to find, for each bar, how far it can extend left and right, for O(n) total time.",
+  "An array of n non-negative bar heights.",
+  "The area of the largest rectangle.",
+  "[2, 1, 5, 6, 2, 3] → 10 (height 5 across the bars of heights 5 and 6); [2, 4] → 4."],
+"Recursively remove adjacent duplicates": [
+  "Repeatedly find two adjacent characters that are equal and delete both. Deleting a pair can make two new characters adjacent and equal, so keep going until no adjacent equal pair remains. The final result is unique. A stack handles it in one pass: push each character, but if it equals the top, pop instead.",
+  "A string s of lowercase letters.",
+  "The string left after all adjacent equal pairs have been removed.",
+  "'abbaca' → 'ca' ('bb' goes, leaving 'aaca'; then 'aa' goes, leaving 'ca'); 'azxxzy' → 'ay'."],
+"Replace each element with the next greater element": [
+  "For each element, find the next greater element: the first element to its right that is strictly larger. If no such element exists, use −1. Process the array with a monotonic stack so each element is pushed and popped at most once, for O(n) total. A variant treats the array as circular.",
+  "An array of n integers.",
+  "An array of n values: the next greater element of each position, or −1.",
+  "[4, 5, 2, 25] → [5, 25, 25, −1]; [13, 7, 6, 12] → [−1, 12, 12, −1]."],
+"Daily temperatures (monotonic-stack twin)": [
+  "For each day, find how many days you have to wait until a strictly warmer day. If no warmer day ever comes, the answer for that day is 0. This is 'next greater element' returning the distance instead of the value; solve it with a stack of indexes in O(n).",
+  "An array of n daily temperatures.",
+  "An array of n integers: the number of days to wait for a warmer temperature, or 0.",
+  "[73, 74, 75, 71, 69, 72, 76, 73] → [1, 1, 4, 2, 1, 1, 0, 0]."],
+"Trapping rain water (stack or two pointers)": [
+  "Bars of width 1 with given heights form an elevation map. After it rains, water collects in the dips between taller bars. The water above a bar is min(tallest bar to its left, tallest bar to its right) − its own height, if that is positive. Compute the total units of trapped water, in O(n) time with two pointers or a stack.",
+  "An array of n non-negative bar heights.",
+  "The total amount of water trapped.",
+  "[0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1] → 6; [4, 2, 0, 3, 2, 5] → 9."],
+
+/* queues */
+"Reverse a queue using only queue operations (plus a stack)": [
+  "Reverse the order of the elements in a queue, so the element that was at the back ends up at the front. You may use only the queue's standard operations (enqueue, dequeue, isEmpty) and one stack. Dequeue everything onto the stack, then pop everything back into the queue.",
+  "A queue of n elements.",
+  "The same queue with its elements in reverse order.",
+  "front→back 1, 2, 3, 4 → 4, 3, 2, 1."],
+"Queue using two stacks, with amortised analysis": [
+  "Implement a FIFO queue with two stacks (an input stack for enqueue, an output stack for dequeue; refill the output stack from the input stack only when it is empty). Then prove the cost: although a single dequeue can take O(n), each element is pushed and popped at most twice in total, so any sequence of n operations costs O(n), which is O(1) amortised per operation.",
+  "A sequence of enqueue(x) and dequeue() operations.",
+  "The dequeued values in FIFO order, plus an amortised cost argument.",
+  "enqueue(1), enqueue(2), enqueue(3), dequeue() → 1 (moves 3, 2, 1 to the output stack), dequeue() → 2 (no moves)."],
+"Maximum of every sliding window": [
+  "A window of size k slides across the array one position at a time, from the left edge to the right edge. Report the largest element inside the window at each position. A deque of indexes, kept in decreasing order of value, gives each window's maximum at its front and solves the whole thing in O(n).",
+  "An array of n integers and a window size k (1 ≤ k ≤ n).",
+  "An array of n − k + 1 values: the maximum of each window, from left to right.",
+  "[1, 3, −1, −3, 5, 3, 6, 7], k = 3 → [3, 3, 5, 5, 6, 7]."],
+"Move queue items onto a stack while keeping their order": [
+  "Transfer every element of a queue onto an empty stack so that the element at the front of the queue ends up on top of the stack (and so pops first). Moving elements directly would invert the order; work out a sequence of moves between the queue and the stack, using only their standard operations, that achieves the required order.",
+  "A queue of n elements and an empty stack.",
+  "The stack holding all n elements, with the queue's front element on top.",
+  "Queue front→back 1, 2, 3 → stack top→bottom 1, 2, 3."],
+"Circular array capacity: telling full from empty": [
+  "A queue stored in a circular array uses a front index and a rear index that wrap around to 0 at the end of the array. When front == rear, the queue could be completely empty or completely full, so the two states look the same. Explain why, then implement a circular queue that tells them apart, e.g. by leaving one slot unused or by keeping a separate count.",
+  "A capacity k and a sequence of enQueue(x), deQueue(), Front(), Rear(), isEmpty(), isFull() operations.",
+  "Each operation's result: true/false for enQueue, deQueue, isEmpty and isFull; a value or −1 for Front and Rear.",
+  "k = 3: enQueue(1), enQueue(2), enQueue(3) → true each, enQueue(4) → false, Rear() → 3, isFull() → true, deQueue() → true, enQueue(4) → true, Rear() → 4."],
+"Implement a double-ended queue": [
+  "A deque (double-ended queue) lets you add and remove elements at both ends. Implement insertFront, insertLast, deleteFront, deleteLast, getFront and getRear, each in O(1). Use a circular array with a fixed capacity or a doubly linked list.",
+  "A capacity k and a sequence of deque operations.",
+  "true/false for insert and delete (false if full or empty); the value or −1 for getFront and getRear.",
+  "k = 3: insertLast(1), insertLast(2), insertFront(3) → true, insertFront(4) → false (full), getRear() → 2, deleteLast() → true, insertFront(4) → true, getFront() → 4."],
+"Are successive pairs in a stack consecutive?": [
+  "Check whether the numbers in a stack, taken in successive pairs, are consecutive integers. Each pair may be increasing or decreasing (5, 6 and 6, 5 both count). If the stack has an odd number of elements, the element on top is left out of the pairing. You may use only one queue as extra storage, and the stack must be restored to its original state afterwards.",
+  "A stack of integers.",
+  "true if every pair is consecutive, false otherwise; the stack is left unchanged.",
+  "Bottom→top 4, 5, −2, −3, 11, 10, 5, 6, 20 → true: pairs (4, 5), (−2, −3), (11, 10), (5, 6), with 20 on top left out."],
+"Interleave the first and second halves of a queue": [
+  "The queue holds an even number of elements. Rearrange it so that elements from the first half and the second half alternate: first element of the first half, first element of the second half, second element of the first half, and so on. You may use one stack as extra storage.",
+  "A queue with an even number of elements.",
+  "The same queue with its two halves interleaved.",
+  "11, 12, 13, 14, 15, 16, 17, 18, 19, 20 → 11, 16, 12, 17, 13, 18, 14, 19, 15, 20."],
+"Reverse the first k elements of a queue": [
+  "Reverse the order of the first k elements of the queue, leaving the other elements in their original order behind them. Dequeue the first k elements onto a stack, pop them back into the queue (now reversed, at the back), and then move the remaining n − k elements from the front to the back.",
+  "A queue of n elements and an integer k (0 ≤ k ≤ n).",
+  "The queue with its first k elements reversed.",
+  "10, 20, 30, 40, 50 with k = 3 → 30, 20, 10, 40, 50."],
+"Level order in reverse (queue + stack)": [
+  "Print the nodes of a binary tree level by level, starting from the deepest level and ending with the root, with each level read from left to right. Run a normal BFS with a queue, but push every visited node onto a stack, enqueuing the right child before the left one; popping the stack then gives the required order.",
+  "The root of a binary tree.",
+  "The node values from the bottom level up to the root, each level from left to right (or as a list of levels).",
+  "Root 3, children 9 and 20, where 20 has children 15 and 7 → [[15, 7], [9, 20], [3]]."],
+"Number of recent calls (a sliding time window)": [
+  "Implement a counter of recent requests. Each call ping(t) records a request at time t (in milliseconds) and returns how many requests occurred in the inclusive window [t − 3000, t]. Each call's t is strictly larger than the previous one, so keep the timestamps in a queue and drop old ones from the front.",
+  "A sequence of ping(t) calls with strictly increasing t.",
+  "For each ping, the number of pings in [t − 3000, t].",
+  "ping(1) → 1, ping(100) → 2, ping(3001) → 3, ping(3002) → 3 (the ping at 1 has expired)."],
+
+/* binary trees */
+"Maximum element, recursively and iteratively": [
+  "Find the largest value stored in a binary tree. Because it is a general binary tree, not a BST, the maximum can be anywhere, so every node must be checked. Write a recursive version (max of the node, the left subtree's max and the right subtree's max) and an iterative version that does a level-order traversal with a queue.",
+  "The root of a binary tree.",
+  "The maximum value in the tree (or a sentinel such as −∞ for an empty tree).",
+  "Root 1, children 2 and 3, where 2 has children 4 and 5 → 5."],
+"Search and insert in a binary tree": [
+  "In a general binary tree (no ordering), implement two operations. Search: return whether a given value appears in any node. Insert: add a new node in the first free child position in level order (the leftmost empty spot on the highest incomplete level), keeping the tree as complete as possible.",
+  "The root of a binary tree and a value.",
+  "Search: true or false. Insert: the root of the tree with the new node added.",
+  "Tree 1 (children 2, 3; 2 has child 4); insert 5 → it becomes 2's right child. search(3) → true."],
+"Size of a binary tree, with and without recursion": [
+  "Count the total number of nodes in a binary tree. Recursively, the size is 1 plus the sizes of the left and right subtrees (0 for an empty tree). Iteratively, traverse the tree with a queue (or a stack) and count the nodes you visit.",
+  "The root of a binary tree.",
+  "The number of nodes.",
+  "Root 1, children 2 and 3, where 2 has children 4 and 5 → 5."],
+"Height, recursively and with BFS": [
+  "The height (maximum depth) of a binary tree is the number of nodes on its longest path from the root down to a leaf. Compute it recursively as 1 + max(height(left), height(right)), with an empty tree having height 0. Then compute it iteratively by counting the levels in a breadth-first traversal.",
+  "The root of a binary tree.",
+  "The height of the tree (0 for an empty tree).",
+  "Root 3, children 9 and 20, where 20 has children 15 and 7 → 3."],
+"Deepest node; count leaves, full nodes and half nodes": [
+  "Several small tree-counting tasks. Find the deepest node (the last node visited in a level-order traversal). Count the leaves (no children), the full nodes (exactly two children) and the half nodes (exactly one child). Each can be done with one traversal, recursively or with a queue.",
+  "The root of a binary tree.",
+  "The deepest node, and the numbers of leaves, full nodes and half nodes.",
+  "Root 1, children 2 and 3, 2 has a left child 4 → deepest 4; leaves 2 (4, 3); full nodes 1 (1); half nodes 1 (2)."],
+"Are two trees structurally identical?": [
+  "Two binary trees are identical if they have exactly the same shape and every pair of corresponding nodes holds the same value. Compare them recursively: both empty → identical; one empty → not identical; otherwise the values must match and both pairs of subtrees must be identical.",
+  "The roots of two binary trees.",
+  "true if the trees are identical, false otherwise.",
+  "[1, 2, 3] and [1, 2, 3] → true; [1, 2] and [1, null, 2] → false (different shapes)."],
+"Diameter of a binary tree": [
+  "The diameter is the length (number of edges) of the longest path between any two nodes in the tree. The path doesn't have to pass through the root. For every node, the longest path through it is height(left) + height(right); compute all heights in one post-order traversal and track the largest such sum.",
+  "The root of a binary tree.",
+  "The diameter, measured in edges.",
+  "Root 1, children 2 and 3, where 2 has children 4 and 5 → 3 (path 4→2→1→3 or 5→2→1→3)."],
+"The level with the maximum sum": [
+  "Add up the values of all the nodes on each level of the tree (the root is level 1, its children level 2, and so on). Return the level with the largest sum; if several levels tie, return the smallest such level number. A level-order traversal that processes one whole level at a time computes all the sums.",
+  "The root of a binary tree.",
+  "The level number with the maximum sum.",
+  "Root 1, children 7 and 0, where 7 has children 7 and −8 → level sums 1, 7, −1 → 2."],
+"Print all root-to-leaf paths": [
+  "List every path that starts at the root and ends at a leaf. Do a depth-first traversal that carries the path so far; when you reach a leaf, record the path. Each path is reported as the sequence of node values from root to leaf.",
+  "The root of a binary tree.",
+  "All root-to-leaf paths (e.g. as strings '1→2→5'), in any order.",
+  "Root 1, children 2 and 3, where 2 has a right child 5 → ['1→2→5', '1→3']."],
+"Does a path with a given sum exist?": [
+  "Decide whether there is a path from the root down to a leaf whose node values add up to exactly S. Subtract each node's value from S as you go down; at a leaf, check whether what's left is exactly the leaf's value. The path must end at a leaf, not just any node.",
+  "The root of a binary tree and an integer S.",
+  "true if some root-to-leaf path sums to S, false otherwise.",
+  "Tree [5, 4, 8, 11, null, 13, 4, 7, 2], S = 22 → true (5 → 4 → 11 → 2); S = 26 → true (5 → 8 → 13); S = 100 → false."],
+"Mirror a tree; are two trees mirrors?": [
+  "Two related tasks. (1) Convert a binary tree into its mirror image by swapping the left and right child of every node. (2) Decide whether two given trees are mirror images of each other: their roots match, and the left subtree of one mirrors the right subtree of the other. A tree is symmetric if it is a mirror of itself.",
+  "(1) The root of a binary tree. (2) The roots of two binary trees (or one root, for the symmetric check).",
+  "(1) The root of the mirrored tree. (2) true if the trees are mirrors, false otherwise.",
+  "Mirror of [4, 2, 7, 1, 3, 6, 9] → [4, 7, 2, 9, 6, 3, 1]. [1, 2, 2, 3, 4, 4, 3] is symmetric → true."],
+"Lowest common ancestor": [
+  "The lowest common ancestor (LCA) of two nodes p and q is the deepest node that has both p and q in its subtree, where a node counts as being in its own subtree. Find it in a general binary tree (no ordering). Recursively search both subtrees: if p and q are found on different sides, the current node is the LCA.",
+  "The root of a binary tree and two nodes p and q that are in the tree.",
+  "The LCA node of p and q.",
+  "Tree [3, 5, 1, 6, 2, 0, 8, null, null, 7, 4]: p = 5, q = 1 → 3; p = 5, q = 4 → 5."],
+"Build a tree from inorder + preorder": [
+  "Rebuild a binary tree from two of its traversals. The first element of the preorder list is the root. Find that value in the inorder list: everything to its left forms the left subtree and everything to its right forms the right subtree. Recurse on both parts. All values are distinct, which makes the tree unique.",
+  "Two arrays of length n: the preorder and inorder traversals of a tree with distinct values.",
+  "The root of the reconstructed binary tree.",
+  "preorder [3, 9, 20, 15, 7], inorder [9, 3, 15, 20, 7] → root 3, left child 9, right child 20 with children 15 and 7."],
+"Print all ancestors of a node": [
+  "Print every ancestor of a given node: its parent, its parent's parent, and so on up to the root. Search for the node recursively; when a call returns true (the node is in that subtree), print the current node before returning true to its caller.",
+  "The root of a binary tree and a target node (or value).",
+  "The target's ancestors, from its parent up to the root.",
+  "Root 1, children 2 and 3, where 2 has children 4 and 5, and 4 has a child 7; target 7 → 4 2 1."],
+"Zigzag level order": [
+  "Traverse a binary tree level by level, but alternate the direction on each level: the first level left to right, the second right to left, the third left to right, and so on. Use a BFS that collects each level and reverses every other one, or two stacks.",
+  "The root of a binary tree.",
+  "A list of levels, each list ordered according to the zigzag direction.",
+  "Root 3, children 9 and 20, where 20 has children 15 and 7 → [[3], [20, 9], [15, 7]]."],
+"Vertical sum": [
+  "Give each node a horizontal distance (HD): the root has HD 0, a left child has its parent's HD − 1, and a right child has its parent's HD + 1. All nodes with the same HD lie on one vertical line. Compute the sum of the node values on each vertical line, and output the sums from the leftmost line to the rightmost.",
+  "The root of a binary tree.",
+  "The vertical sums, ordered from the smallest horizontal distance to the largest.",
+  "Root 1, children 2 and 3, 2 has children 4 and 5, 3 has children 6 and 7 → HD −2: 4, −1: 2, 0: 1 + 5 + 6 = 12, 1: 3, 2: 7 → [4, 2, 12, 3, 7]."],
+"Number of tree shapes with n nodes (Catalan)": [
+  "Count how many structurally different binary trees can be formed with n nodes (only the shape matters, not the values). Pick how many nodes go in the left subtree (i) and the rest in the right subtree (n − 1 − i), and sum the products over all i. The answer is the n-th Catalan number, C(2n, n)/(n + 1).",
+  "An integer n ≥ 0.",
+  "The number of distinct binary-tree shapes with n nodes.",
+  "n = 1 → 1; n = 2 → 2; n = 3 → 5; n = 4 → 14."],
+"Height from a parent array": [
+  "A tree is described by a parent array P of length n: P[i] is the index of node i's parent, and the root has P[i] = −1. Find the height of the tree (the number of edges on the longest path from the root to a leaf). Compute each node's depth by following parent links, caching depths so that each node is processed only once.",
+  "An array P of n integers, where exactly one entry is −1.",
+  "The height of the tree in edges.",
+  "[−1, 0, 1, 6, 6, 0, 0, 2, 7] → 4 (the path 0 → 1 → 2 → 7 → 8)."],
+"Preorder and inorder successor without threads": [
+  "The successor of a node in a traversal is the node visited immediately after it. Given a node in a binary tree, find its preorder successor and its inorder successor without a threaded tree. Case analysis: for inorder, if the node has a right subtree, the successor is the leftmost node of that subtree; otherwise go up until you come from a left child (this needs parent pointers or a search from the root).",
+  "The root of a binary tree and a node in it.",
+  "The node's preorder successor and inorder successor (null if it is the last in that order).",
+  "Root 1, children 2 and 3, where 2 has children 4 and 5: preorder successor of 5 → 3; inorder successor of 5 → 1."],
+"Remove half nodes; remove leaves": [
+  "Two tree-editing tasks. (1) A half node has exactly one child. Remove every half node by linking its single child directly to its parent; leaves and full nodes stay. (2) Remove every leaf of the tree (nodes with no children). Both are done in a post-order traversal that returns the new root of each subtree.",
+  "The root of a binary tree.",
+  "The root of the modified tree.",
+  "(1) Root 2, left 7 whose only child is 6 → root 2, left 6. (2) Removing leaves from root 1 with children 2 and 3 → just 1."],
+"Connect nodes on the same level, in O(1) space": [
+  "Each tree node has an extra pointer next, initially null. Set every node's next to the node immediately to its right on the same level; the rightmost node of each level keeps next = null. Do it with O(1) extra space: walk each level through the next pointers you already set, and use them to link the level below.",
+  "The root of a binary tree whose nodes have left, right and next pointers.",
+  "The same tree with all next pointers filled in.",
+  "Root 1, children 2 and 3, 2 has children 4 and 5, 3 has child 7 → 1→null; 2→3→null; 4→5→7→null."],
+"Maximum path sum between any two nodes": [
+  "A path is any sequence of nodes where each consecutive pair is joined by an edge; it can start and end at any nodes and does not need to pass through the root. Node values can be negative. Find the path with the largest sum of values. In one post-order pass, compute for each node the best downward path, and update the answer with left + node + right.",
+  "The root of a non-empty binary tree with integer values.",
+  "The maximum path sum.",
+  "[1, 2, 3] → 6 (2 → 1 → 3); [−10, 9, 20, null, null, 15, 7] → 42 (15 → 20 → 7)."],
+"Right side view (BFS twin)": [
+  "Imagine standing to the right of the tree and looking at it. On each level, you see only the rightmost node. Return the values of those nodes from the top level to the bottom. A level-order traversal that records the last node of each level does it.",
+  "The root of a binary tree.",
+  "The values visible from the right, from top to bottom.",
+  "Root 1, children 2 and 3, 2 has a right child 5, 3 has a right child 4 → [1, 3, 4]."],
+"Serialise and deserialise a binary tree": [
+  "Design two functions. serialize turns a binary tree into a single string. deserialize takes that string and rebuilds exactly the same tree (same shape, same values). You choose the format, but it must record missing children (e.g. as 'null' or '#') so that the shape can be recovered.",
+  "serialize: the root of a binary tree. deserialize: a string produced by serialize.",
+  "serialize: a string. deserialize: the root of the rebuilt tree.",
+  "Tree [1, 2, 3, null, null, 4, 5] → '1,2,#,#,3,4,#,#,5,#,#' → the same tree."],
+
+/* binary search trees */
+"LCA of two nodes in a BST": [
+  "Find the lowest common ancestor of two nodes in a binary search tree. Use the ordering: starting at the root, if both values are smaller than the current node go left, if both are larger go right; otherwise the current node is where their paths split, so it is the LCA. This takes O(height) time and O(1) space.",
+  "The root of a BST and two values p and q present in it.",
+  "The LCA node.",
+  "BST [6, 2, 8, 0, 4, 7, 9, null, null, 3, 5]: p = 2, q = 8 → 6; p = 2, q = 4 → 2."],
+"Shortest path between two nodes in a BST": [
+  "In a BST, the unique path between two nodes goes up from one to their lowest common ancestor and then down to the other. Find the LCA using the BST ordering, then add the depth of each node below the LCA to get the number of edges on the path.",
+  "The root of a BST and two keys present in it.",
+  "The number of edges on the path between the two nodes.",
+  "BST 20 (left 8 with children 4 and 12; right 22), keys 4 and 22 → 3 (4 → 8 → 20 → 22)."],
+"Is it a BST? From the classic wrong answer to O(n)": [
+  "A binary tree is a BST if, for every node, every key in its left subtree is smaller than the node's key and every key in its right subtree is larger. Checking each node only against its direct children is wrong: a grandchild deep in the left subtree can still be too large. Check correctly by passing a valid (low, high) range down the tree, or by verifying that the inorder traversal is strictly increasing.",
+  "The root of a binary tree.",
+  "true if the tree is a valid BST, false otherwise.",
+  "[2, 1, 3] → true; [5, 1, 4, null, null, 3, 6] → false (4 is in 5's right subtree but is smaller than 5)."],
+"BST to a circular doubly linked list": [
+  "Convert a BST in place into a sorted circular doubly linked list. Reuse each node's left pointer as 'previous' and right pointer as 'next'. Nodes appear in sorted (inorder) order, and the list is circular: the last node's next is the first node, and the first node's previous is the last.",
+  "The root of a BST.",
+  "A pointer to the smallest node, which is the head of the circular list.",
+  "BST 4 (left 2 with children 1 and 3; right 5) → 1⇄2⇄3⇄4⇄5, with 5's next = 1 and 1's previous = 5."],
+"Sorted array to a balanced BST": [
+  "Build a height-balanced BST (the subtree heights at every node differ by at most 1) containing all the values of a sorted array. Choose the middle element as the root, then build the left subtree from the left half and the right subtree from the right half, recursively.",
+  "A sorted array of n distinct integers.",
+  "The root of a height-balanced BST containing those values.",
+  "[−10, −3, 0, 5, 9] → root 0, left subtree from [−10, −3], right subtree from [5, 9] (e.g. [0, −3, 9, −10, null, 5])."],
+"Sorted linked list to a balanced BST in O(n)": [
+  "Same as building a balanced BST from a sorted array, but the input is a sorted singly linked list, so finding the middle takes O(n) each time and the simple approach costs O(n log n). Get O(n) by building the tree in inorder: recursively build the left subtree from the first half of the count, take the current list node as the root, advance the list pointer, then build the right subtree.",
+  "The head of a sorted singly linked list.",
+  "The root of a height-balanced BST containing the list's values.",
+  "−10→−3→0→5→9 → a balanced BST such as [0, −3, 9, −10, null, 5]."],
+"k-th smallest element in a BST": [
+  "Find the k-th smallest key in a BST (k = 1 is the smallest). An inorder traversal of a BST visits keys in ascending order, so do an inorder traversal (recursive or with a stack) and stop at the k-th node visited.",
+  "The root of a BST and an integer k (1 ≤ k ≤ number of nodes).",
+  "The k-th smallest key.",
+  "BST [3, 1, 4, null, 2], k = 1 → 1; BST [5, 3, 6, 2, 4, null, null, 1], k = 3 → 3."],
+"Floor and ceiling of a key": [
+  "In a BST, the floor of a key x is the largest stored key ≤ x, and the ceiling is the smallest stored key ≥ x. Either may not exist. Walk down from the root: when a node's key is ≤ x, it is a floor candidate, so go right to look for a bigger one; otherwise go left. The ceiling is symmetric.",
+  "The root of a BST and a key x (which may or may not be in the tree).",
+  "The floor and the ceiling of x, or 'none' for either that doesn't exist.",
+  "Keys {2, 8, 10, 12}: x = 9 → floor 8, ceiling 10; x = 1 → no floor, ceiling 2."],
+"Union and intersection of two BSTs": [
+  "Given two BSTs, produce (1) the union: every key that appears in at least one tree, and (2) the intersection: every key that appears in both, each in sorted order. Walk both trees in inorder at the same time (with two stacks, or by first flattening them to sorted lists) and merge like merging two sorted arrays.",
+  "The roots of two BSTs.",
+  "Two sorted lists: the union of the keys and the intersection of the keys.",
+  "Tree 1 keys {1, 3, 5, 7}, tree 2 keys {3, 4, 7, 9} → union [1, 3, 4, 5, 7, 9]; intersection [3, 7]."],
+"Print the keys in the range [K1, K2]": [
+  "Print every key k in the BST with K1 ≤ k ≤ K2, in increasing order. Do an inorder traversal that prunes: skip the left subtree when the node's key is ≤ K1 (nothing smaller can be in range) and the right subtree when it is ≥ K2. LeetCode's twin returns the sum of those keys.",
+  "The root of a BST and two integers K1 ≤ K2.",
+  "The keys in [K1, K2], in ascending order (or their sum).",
+  "BST [10, 5, 15, 3, 7, null, 18], range [7, 15] → 7, 10, 15 (sum 32)."],
+"Trim / prune a BST to a range": [
+  "Remove every node whose key is outside [low, high], keeping the remaining nodes as a valid BST with their original relative structure. If a node's key is below low, its whole left subtree is too small, so replace it with its trimmed right subtree; if above high, replace it with its trimmed left subtree.",
+  "The root of a BST and two integers low ≤ high.",
+  "The root of the trimmed BST (it may be a different node from the original root).",
+  "BST [3, 0, 4, null, 2, null, null, 1], low = 1, high = 3 → [3, 2, null, 1]."],
+"Do two BSTs hold the same elements?": [
+  "Two BSTs can store exactly the same set of keys while having different shapes (they were built by inserting in different orders). Decide whether they contain the same set of keys. Compare their inorder traversals, which are the sorted key lists, ideally side by side with two iterators so you can stop at the first difference.",
+  "The roots of two BSTs.",
+  "true if both trees contain exactly the same keys, false otherwise.",
+  "BST built from [5, 3, 8] and BST built from [3, 8, 5] → true (both hold {3, 5, 8})."],
+"Number of structurally unique BSTs": [
+  "Count the different BSTs that store exactly the keys 1, 2, …, n. If key i is the root, keys 1..i − 1 form the left subtree and i + 1..n form the right subtree, so the count is Σ G(i − 1)·G(n − i). This is the n-th Catalan number.",
+  "An integer n ≥ 1.",
+  "The number of structurally unique BSTs on the keys 1..n.",
+  "n = 1 → 1; n = 3 → 5; n = 5 → 42."],
+"Rank queries with a size-augmented BST": [
+  "Store in each BST node the size of its subtree (the number of nodes in it). Use these sizes to answer two queries in O(height): rank(x), the number of keys smaller than x, and select(k), the k-th smallest key. Keep the sizes correct on insert and delete.",
+  "A BST with subtree sizes, plus rank(x) and select(k) queries.",
+  "For rank, a count; for select, a key.",
+  "Keys {10, 20, 30, 40, 50}: rank(35) → 3; select(2) → 20."],
+"Check whether a tree is an AVL tree": [
+  "A tree is height-balanced (the AVL balance condition) if, at every node, the heights of its left and right subtrees differ by at most 1. Check it in O(n) with a post-order traversal that returns each subtree's height, or −1 as soon as an imbalance is found. (A full AVL check also verifies that the tree is a BST.)",
+  "The root of a binary tree.",
+  "true if every node is balanced, false otherwise.",
+  "[3, 9, 20, null, null, 15, 7] → true; [1, 2, 2, 3, 3, null, null, 4, 4] → false."],
+"Count nodes in [a, b] in an AVL tree": [
+  "Count how many keys in an AVL tree (a balanced BST) lie in the range [a, b]. A traversal that skips subtrees outside the range runs in O(log n + m), where m is the number of matches. With subtree sizes stored in each node, the answer is rank(b + 1) − rank(a), in O(log n).",
+  "The root of an AVL tree and two integers a ≤ b.",
+  "The number of keys k with a ≤ k ≤ b.",
+  "Keys {2, 5, 8, 12, 15, 20}, range [5, 15] → 4 (5, 8, 12, 15)."],
+"Closest value in a BST": [
+  "Find the key in a BST that is closest to a target value (which may be a decimal number). Walk down from the root, recording the closest key seen so far, and go left or right depending on whether the target is smaller or larger than the current key. This takes O(height).",
+  "The root of a BST and a target number.",
+  "The key whose value is closest to the target.",
+  "BST [4, 2, 5, 1, 3], target 3.7 → 4; target 2.2 → 2."],
+"Insert into and delete from a BST": [
+  "Implement insertion and deletion while keeping the BST property. Insert: walk down to the empty spot where the key belongs and attach a new leaf. Delete has three cases: a leaf is simply removed; a node with one child is replaced by that child; a node with two children takes the key of its inorder successor (the smallest key in its right subtree), and that successor is deleted instead.",
+  "The root of a BST and a key to insert or delete.",
+  "The root of the updated BST.",
+  "BST [5, 3, 6, 2, 4, null, 7]: delete 3 → [5, 4, 6, 2, null, null, 7]; insert 1 → 1 becomes 2's left child."],
+"Minimal and full AVL trees of height h": [
+  "An AVL tree of height h has as few nodes as possible when every subtree is as unbalanced as AVL allows: N(h) = N(h − 1) + N(h − 2) + 1, a Fibonacci-like sequence. It has as many nodes as possible when it is a perfect binary tree: 2^(h+1) − 1. Derive both counts and construct examples of each.",
+  "A height h ≥ 0.",
+  "The minimum and maximum numbers of nodes in an AVL tree of height h, and example trees.",
+  "h = 0 → 1 and 1; h = 1 → 2 and 3; h = 2 → 4 and 7; h = 3 → 7 and 15."],
+
+/* heaps */
+"Min/max elements in a heap of height h; why height = log n": [
+  "A binary heap is a complete binary tree: all levels are full except possibly the last, which fills from the left. Work out the smallest and largest number of elements a heap of height h can hold. Then invert the result to show that a heap of n elements has height ⌊log₂ n⌋, which is why heap operations are O(log n).",
+  "A height h (or an element count n).",
+  "The range of possible element counts for height h; the height for a given n.",
+  "h = 3 → between 2³ = 8 and 2⁴ − 1 = 15 elements; n = 10 → height 3."],
+"Traversal orders of heaps (can preorder be sorted?)": [
+  "In a min-heap, every parent is smaller than its children. Decide whether a preorder, inorder or postorder traversal of a min-heap can produce elements in sorted (increasing) order, and whether it always does. For example, preorder visits the parent before its children, which agrees with the heap order, but what about siblings?",
+  "A traversal type (preorder, inorder or postorder) and a min-heap.",
+  "Whether that traversal can (or must) be sorted, with a proof or counter-example.",
+  "Min-heap [1, 2, 3]: preorder 1 2 3 is sorted. Min-heap [1, 3, 2]: preorder 1 3 2 is not, so preorder can be sorted but isn't always."],
+"Find the maximum in a min-heap (it's a leaf)": [
+  "In a min-heap the smallest element is at the root, but the largest can be anywhere among the leaves. Show that the maximum must be a leaf (any internal node is smaller than its child), and that in the array representation the leaves are exactly the positions ⌊n/2⌋..n − 1. Scan only those positions.",
+  "A min-heap stored as an array of n elements.",
+  "The maximum element.",
+  "[1, 3, 2, 7, 4, 5] → leaves are 7, 4, 5 → maximum 7."],
+"Delete an arbitrary element from a heap": [
+  "Remove the element at a given array index i from a binary heap, keeping it a valid heap. Move the last element into position i and shrink the heap. The moved element may now be too large or too small for that position, so sift it down or up as needed. This takes O(log n).",
+  "A heap (as an array) and an index i.",
+  "The heap after removing the element at index i.",
+  "Min-heap [1, 3, 2, 7, 4, 5], delete index 1 (value 3) → move 5 there → [1, 5, 2, 7, 4] → sift down → [1, 4, 2, 7, 5]."],
+"All elements less than k in a heap": [
+  "List every element of a min-heap that is smaller than k. Start at the root and explore it like a tree: if a node is ≥ k, none of its descendants can be smaller (they are all at least as large), so skip its whole subtree. The running time is proportional to the number of elements reported.",
+  "A min-heap and a value k.",
+  "All elements smaller than k, in any order.",
+  "Min-heap [1, 3, 2, 7, 4, 5], k = 4 → 1, 3, 2."],
+"Merge two heaps": [
+  "Combine two binary heaps of sizes m and n into one valid heap. Inserting each element of the smaller heap into the larger one costs O(m log(m + n)). Concatenating the two arrays and running a bottom-up heapify costs only O(m + n). Compare the two approaches.",
+  "Two heaps, as arrays of sizes m and n.",
+  "One heap containing all m + n elements.",
+  "Min-heaps [1, 5, 3] and [2, 4] → concatenate [1, 5, 3, 2, 4] → heapify → [1, 2, 3, 5, 4]."],
+"k-th smallest in a min-heap in O(k log k)": [
+  "Find the k-th smallest element of a min-heap of size n without destroying it. Popping k times would modify the heap. Instead, use a second (auxiliary) min-heap of candidate positions: start with the root; each time you pop the smallest candidate, push its two children. The k-th pop is the answer, and the auxiliary heap never holds more than k + 1 items.",
+  "A min-heap (array) of n elements and an integer k ≤ n.",
+  "The k-th smallest element; the original heap is unchanged.",
+  "Min-heap [1, 3, 2, 7, 4, 5], k = 3 → 3."],
+"The k largest elements": [
+  "Return the k largest elements of an unsorted array (or just the k-th largest). Keep a min-heap of size k: push each element, and pop the minimum whenever the heap holds more than k elements. At the end the heap contains the k largest, and its top is the k-th largest. Time O(n log k).",
+  "An array of n integers and an integer k (1 ≤ k ≤ n).",
+  "The k largest elements (in any order), or the k-th largest.",
+  "[3, 2, 1, 5, 6, 4], k = 2 → [6, 5], so the 2nd largest is 5."],
+"Stack and queue implemented with a heap": [
+  "Use a priority queue (heap) to behave like a stack and like a queue. Give every inserted element a counter value that increases with each insertion and use it as the priority. For a stack, the element with the largest counter (newest) comes out first; for a queue, the smallest counter (oldest) comes out first.",
+  "A sequence of push/pop (stack) or enqueue/dequeue (queue) operations.",
+  "The elements removed, in LIFO order for the stack and FIFO order for the queue.",
+  "push(a), push(b), push(c) with counters 1, 2, 3; the max-heap pops c, b, a (stack); the min-heap pops a, b, c (queue)."],
+"Top k numbers from a file of billions": [
+  "A huge file or stream contains billions of numbers. Find the k largest using memory proportional to k, not to the size of the stream. Keep a min-heap of size k holding the k largest numbers seen so far; a new number replaces the heap's minimum only if it is larger. LeetCode's twin asks for the k-th largest after each new number.",
+  "A stream of N numbers (N huge) and an integer k.",
+  "The k largest numbers (or the current k-th largest after each arrival).",
+  "k = 3, stream 4, 5, 8, 2, 3, 5, 10, 9, 4 → [8, 9, 10]."],
+"Merge k sorted lists": [
+  "Combine k linked lists, each sorted in ascending order, into one sorted list. Put the head node of each list into a min-heap keyed by value. Repeatedly pop the smallest node, append it to the output, and push that node's next node (if any). With n nodes in total, this is O(n log k).",
+  "An array of k sorted linked lists.",
+  "One sorted linked list containing all the nodes.",
+  "[1→4→5, 1→3→4, 2→6] → 1→1→2→3→4→4→5→6."],
+"The largest n pairs from two arrays": [
+  "You are given two arrays A and B, each with n numbers, sorted in descending order. Among all n² sums A[i] + B[j], find the n largest. The largest is A[0] + B[0]; after taking (i, j), the next candidates are (i + 1, j) and (i, j + 1). Explore these candidates with a max-heap and a visited set, in O(n log n). (LeetCode's twin asks for the k smallest sums.)",
+  "Two arrays A and B of size n, sorted in descending order.",
+  "The n largest values of A[i] + B[j].",
+  "A = [9, 8, 2], B = [6, 3, 1] → 15 (9 + 6), 14 (8 + 6), 12 (9 + 3)."],
+"Running median of a stream": [
+  "Numbers arrive one at a time. After each arrival, report the median of all numbers seen so far: the middle value when the count is odd, or the average of the two middle values when it is even. Keep the smaller half in a max-heap and the larger half in a min-heap, balanced so their sizes differ by at most 1. Each insert is O(log n) and each median query O(1).",
+  "A stream of numbers (addNum(x) calls) with findMedian() queries in between.",
+  "The current median for each findMedian() call.",
+  "Add 5 → 5; add 15 → 10; add 1 → 5; add 3 → 4."],
+"Sliding window max: brute force → heap → deque": [
+  "A window of size k slides across the array one step at a time. Report the maximum inside each window. Solve it three ways: brute force, scanning each window (O(nk)); a max-heap of (value, index) pairs, discarding entries that have left the window (O(n log n)); and a monotonic deque of indexes (O(n)).",
+  "An array of n integers and a window size k.",
+  "An array of n − k + 1 window maximums.",
+  "[1, 3, −1, −3, 5, 3, 6, 7], k = 3 → [3, 3, 5, 5, 6, 7]."],
+"K closest points to the origin": [
+  "Given points on a plane and an integer k, return the k points closest to the origin (0, 0), using ordinary Euclidean distance. Compare squared distances x² + y² to avoid square roots. Keep a max-heap of size k (O(n log k)), or use quickselect (O(n) average).",
+  "An array of n points [x, y] and an integer k.",
+  "The k closest points, in any order.",
+  "[[1, 3], [−2, 2]], k = 1 → [[−2, 2]] (distance² 8 vs 10); [[3, 3], [5, −1], [−2, 4]], k = 2 → [[3, 3], [−2, 4]]."],
+"Task scheduler (heap-driven greedy)": [
+  "A CPU must run a list of tasks, each labelled with a letter and each taking one time slot. Two runs of the same task must be separated by at least n slots, during which the CPU runs other tasks or idles. Find the minimum total number of slots needed to finish all tasks. Greedily run the most frequent remaining task, or use the formula (maxCount − 1)·(n + 1) + (number of tasks with maxCount).",
+  "An array of task letters and a non-negative cooldown n.",
+  "The minimum number of time slots, including idle slots.",
+  "[A, A, A, B, B, B], n = 2 → 8 (A B idle A B idle A B); same tasks with n = 0 → 6."],
+"Min-max heap": [
+  "A min-max heap is a complete binary tree whose levels alternate between 'min levels' (each node is ≤ all its descendants) and 'max levels' (each node is ≥ all its descendants), starting with a min level at the root. The minimum is at the root and the maximum is one of the root's children. Implement insert, findMin, findMax, deleteMin and deleteMax, with insert and delete in O(log n).",
+  "A sequence of insert, findMin, findMax, deleteMin and deleteMax operations.",
+  "The values returned by the find and delete operations.",
+  "Insert 5, 1, 9, 3, 7 → findMin() → 1, findMax() → 9; deleteMax() → 9, then findMax() → 7."],
+"d-ary heaps and heap MCQs": [
+  "In a d-ary heap each node has up to d children instead of 2. Derive the array index of a node's parent and of its children, the height of a d-ary heap with n elements (about log_d n), and the cost of insert (O(log_d n)) and delete-min (O(d·log_d n)). Then answer exam-style multiple-choice questions about heaps.",
+  "A value of d and n, or a multiple-choice question on heaps.",
+  "The index formulas, the height and operation costs, or the correct option.",
+  "d = 3, 0-based array: the parent of i is ⌊(i − 1)/3⌋ and the children of i are 3i + 1, 3i + 2, 3i + 3."],
+
+/* strings */
+"Most frequent word in a paragraph (trie, or hash + heap)": [
+  "Given a block of text, find the word that occurs most often, treating words case-insensitively and ignoring punctuation. The extended version returns the k most frequent words, sorted by frequency (ties broken alphabetically). Count words with a hash map (or a trie), then pick the top k with a heap.",
+  "A paragraph of text (or a list of words) and, for the extended version, an integer k.",
+  "The most frequent word, or the k most frequent words in order.",
+  "['i', 'love', 'leetcode', 'i', 'love', 'coding'], k = 2 → ['i', 'love']."],
+"Longest common substring": [
+  "A substring is a contiguous run of characters. Find the longest string that occurs as a substring of both input strings. Use DP: L[i][j] is the length of the longest common substring ending exactly at A[i − 1] and B[j − 1], which is L[i − 1][j − 1] + 1 if those characters match, else 0. The answer is the largest entry. LeetCode's twin asks the same question for arrays.",
+  "Two strings A (length m) and B (length n).",
+  "The longest common substring (or its length).",
+  "'ABABC' and 'BABCA' → 'BABC' (length 4)."],
+"Longest palindromic substring": [
+  "Find the longest contiguous substring that is a palindrome, i.e. reads the same forwards and backwards. Expand around each possible centre (each character and each gap between characters) as far as the characters keep matching, for O(n²) time and O(1) space. If there is more than one longest palindrome, any one is accepted.",
+  "A string s of length n.",
+  "The longest palindromic substring of s.",
+  "'babad' → 'bab' (or 'aba'); 'cbbd' → 'bb'."],
+"The next word in dictionary order": [
+  "Rearrange the letters of a word to form the next larger word in dictionary (lexicographic) order, i.e. the smallest arrangement that is bigger than the current one. From the right, find the first letter that is smaller than the letter after it; swap it with the smallest larger letter to its right; then reverse everything after that position. If the word is already the largest arrangement, no next word exists.",
+  "A word (or an array of numbers).",
+  "The next arrangement in lexicographic order, or 'none' (LeetCode wraps around to the smallest arrangement).",
+  "'abdc' → 'acbd'; 'abc' → 'acb'; 'dcba' → none."],
+"Reverse a string (in place, immutable, without a temp)": [
+  "Reverse the characters of a string, in three settings: (1) the string is a mutable character array, so swap characters from both ends moving inward, in place; (2) strings are immutable, so build a new reversed string; (3) swap characters without using a temporary variable (e.g. with XOR).",
+  "A string (or character array) of length n.",
+  "The reversed string, or the same array reversed in place.",
+  "['h', 'e', 'l', 'l', 'o'] → ['o', 'l', 'l', 'e', 'h']."],
+"Wildcard matching with ? and *": [
+  "Decide whether a pattern matches an entire text. In the pattern, '?' matches exactly one character of any kind, '*' matches any sequence of characters, including the empty sequence, and every other character matches only itself. The match must cover the whole text, not just part of it. Use DP over prefixes, or a greedy two-pointer approach with backtracking to the last '*'.",
+  "A text string s and a pattern string p (containing letters, '?' and '*').",
+  "true if p matches all of s, false otherwise.",
+  "s = 'aa', p = 'a' → false; s = 'aa', p = '*' → true; s = 'adceb', p = '*a*b' → true; s = 'acdcb', p = 'a*c?b' → false."],
+"Reverse the words in a sentence": [
+  "Reverse the order of the words in a sentence while keeping the letters of each word in their original order. Words are separated by spaces. A classic in-place method reverses the whole string and then reverses each word back.",
+  "A string of words separated by spaces.",
+  "The sentence with its words in reverse order.",
+  "'the sky is blue' → 'blue is sky the'."],
+"Minimum window containing a set of characters": [
+  "Find the shortest contiguous substring of S that contains every character of T, including repeats (if T has two 'A's, the window needs at least two 'A's). Use a sliding window: expand the right end until the window is valid, then shrink from the left while it stays valid, recording the smallest valid window.",
+  "Two strings S (length n) and T (length m).",
+  "The shortest substring of S that contains all characters of T, or an empty string if none exists.",
+  "S = 'ADOBECODEBANC', T = 'ABC' → 'BANC'; S = 'a', T = 'aa' → ''."],
+"Search for a pattern in a 2D grid": [
+  "You are given a grid of letters and a word. Decide whether the word can be traced in the grid: start at any cell containing the first letter, then move step by step to a horizontally or vertically adjacent cell containing the next letter. The same cell cannot be used twice in one word.",
+  "A 2D grid of characters (R rows, C columns) and a string word.",
+  "true if the word can be traced in the grid, false otherwise.",
+  "grid = [[A,B,C,E], [S,F,C,S], [A,D,E,E]], word = 'SEE' → true; word = 'ABCB' → false (B would be reused)."],
+"All interleavings of two strings": [
+  "An interleaving of strings A and B is a string that contains every character of A and every character of B, where A's characters appear in their original order and so do B's. Generate all interleavings recursively: at each step take the next character from A or the next from B. (LeetCode's twin instead asks whether one given string is an interleaving of A and B, solved with DP.)",
+  "Two strings A and B.",
+  "All interleavings of A and B (there are C(|A| + |B|, |A|) of them).",
+  "'AB' and 'CD' → ABCD, ACBD, ACDB, CABD, CADB, CDAB."],
+"Replace spaces with %20 in place": [
+  "Replace every space in a string with the three characters '%20' (URL encoding). The string is stored in a character array that has exactly enough spare room at the end for the longer result, and you are given its true length. Count the spaces, then fill the array from the back so that no character is overwritten before it has been moved.",
+  "A character array with spare room at the end, and the true length of the string.",
+  "The same array containing the encoded string.",
+  "'Mr John Smith    ' with true length 13 → 'Mr%20John%20Smith'."],
+"Run-length encoding": [
+  "Compress a string by replacing each run of identical consecutive characters with the character followed by the length of the run. LeetCode's twin writes the result in place into the original array, omits the count when it is 1, and returns the new length.",
+  "A string (or character array).",
+  "The run-length encoded string (or, in place, the new length).",
+  "'aaabbcccc' → 'a3b2c4'; LeetCode style: ['a', 'a', 'b', 'b', 'c', 'c', 'c'] → ['a', '2', 'b', '2', 'c', '3'], length 6."],
+"Implement KMP from memory": [
+  "Find the first position where a pattern occurs in a text in O(n + m) time with the Knuth–Morris–Pratt algorithm. First build the prefix (failure) table: for each position in the pattern, the length of the longest proper prefix that is also a suffix ending there. Then scan the text; on a mismatch, use the table to shift the pattern without moving backwards in the text.",
+  "A text string (length n) and a pattern string (length m).",
+  "The index of the first occurrence of the pattern in the text, or −1 if it does not occur.",
+  "text 'sadbutsad', pattern 'sad' → 0; text 'leetcode', pattern 'leeto' → −1. Prefix table of 'ababaca' → [0, 0, 1, 2, 3, 0, 1]."],
+"Implement a trie": [
+  "A trie (prefix tree) stores strings character by character: each node has up to 26 children (one per letter) and a flag marking whether a word ends there. Implement insert(word), search(word), which returns true only if that exact word was inserted, and startsWith(prefix), which returns true if any inserted word begins with the prefix.",
+  "A sequence of insert, search and startsWith operations on lowercase words.",
+  "true or false for each search and startsWith call.",
+  "insert('apple'), search('apple') → true, search('app') → false, startsWith('app') → true, insert('app'), search('app') → true."],
+"Trie with wildcard search": [
+  "Design a word dictionary with two operations: addWord(word) stores a word, and search(pattern) returns true if any stored word matches the pattern. In the pattern, '.' matches any single letter. Store the words in a trie; when the search reaches a '.', try every child of the current node.",
+  "A sequence of addWord(word) and search(pattern) calls (lowercase letters and '.').",
+  "true or false for each search.",
+  "addWord('bad'), addWord('dad'), addWord('mad'); search('pad') → false, search('bad') → true, search('.ad') → true, search('b..') → true."],
+"Word Search II (trie + backtracking)": [
+  "Given a grid of letters and a list of words, find every word from the list that can be traced in the grid by moving between horizontally or vertically adjacent cells, without using a cell twice within one word. Searching for each word separately is slow; put all the words in a trie and run one DFS from every cell that follows the trie, pruning branches that match no word.",
+  "A 2D grid of letters and a list of words.",
+  "All words from the list that can be found in the grid, in any order.",
+  "grid [[o,a,a,n], [e,t,a,e], [i,h,k,r], [i,f,l,v]], words ['oath', 'pea', 'eat', 'rain'] → ['eat', 'oath']."],
+
+/* disjoint sets */
+"Group cities by state; answer same-state queries": [
+  "You are given n cities and a list of pairs, each saying that two cities are in the same state. 'Same state' is transitive: if A and B share a state, and B and C share a state, then A and C do too. Group the cities into states with a union-find (disjoint set) structure, then answer queries asking whether two given cities are in the same state.",
+  "The number of cities n, a list of same-state pairs, and a list of queries (city pairs).",
+  "For each query, yes or no; optionally the number of states.",
+  "n = 5, pairs (1, 2), (2, 3), (4, 5); query (1, 3) → yes, (3, 4) → no; 2 states."],
+"Cost analysis of linked-list and tree implementations": [
+  "Compare different ways to implement a disjoint-set (union-find) structure: (1) each set as a linked list with a pointer to its representative (fast find, slow union); (2) each set as a tree with parent pointers (quick-union); (3) trees with union by size or rank; (4) union by rank plus path compression. Give the cost of find and union for each.",
+  "The implementation variant, and a sequence of n operations.",
+  "The worst-case cost of find and of union for each variant.",
+  "Quick-union without balancing → find O(n) worst case; union by rank → O(log n); rank + path compression → O(α(n)) amortised, effectively constant."],
+"Why quick-union sequences are super-linear; unions before finds": [
+  "Show that plain quick-union (no balancing, no path compression) can perform badly: build a sequence of unions that makes a tree shaped like a long chain, so that each subsequent find costs O(n) and n operations cost O(n²). Then analyse the special case where every union happens before every find, and show how path compression makes the finds cheap.",
+  "A sequence of union and find operations on n elements.",
+  "The total cost of the sequence, with an argument.",
+  "union(1, 2), union(2, 3), …, union(n − 1, n) builds a chain; n finds on element 1 then cost O(n²) in total without path compression."],
+"Number of provinces (connected components)": [
+  "There are n cities. isConnected[i][j] = 1 means cities i and j are directly connected by a road. A province is a group of cities that are connected to each other directly or through other cities, with no connection to any city outside the group. Count the provinces using union-find, DFS or BFS.",
+  "An n × n symmetric matrix isConnected of 0s and 1s (with 1s on the diagonal).",
+  "The number of provinces.",
+  "[[1, 1, 0], [1, 1, 0], [0, 0, 1]] → 2; [[1, 0, 0], [0, 1, 0], [0, 0, 1]] → 3."],
+"Redundant connection (the first edge that forms a cycle)": [
+  "An undirected graph started as a tree on the nodes 1..n (connected, no cycles), and then one extra edge was added, creating exactly one cycle. Find an edge you can remove to turn the graph back into a tree. If several edges would work, return the one that appears last in the input. Process the edges in order with union-find; the first edge whose two endpoints are already connected is the answer.",
+  "A list of n edges [u, v] on the nodes 1..n.",
+  "The redundant edge [u, v].",
+  "[[1, 2], [1, 3], [2, 3]] → [2, 3]; [[1, 2], [2, 3], [3, 4], [1, 4], [1, 5]] → [1, 4]."],
+"Accounts merge": [
+  "Each account is a list: the first element is a name and the rest are email addresses. Two accounts belong to the same person if they share at least one email, and this is transitive. Two different people may have the same name, so names alone don't decide anything. Merge each person's accounts and output the name followed by all their emails, sorted and without duplicates.",
+  "A list of accounts, each [name, email1, email2, …].",
+  "The merged accounts, each [name, sorted unique emails…], in any order.",
+  "[['John', 'a@x', 'b@x'], ['John', 'c@x'], ['John', 'a@x', 'd@x']] → [['John', 'a@x', 'b@x', 'd@x'], ['John', 'c@x']]."],
+"Satisfiability of equality equations": [
+  "You are given equations, each of the form 'a==b' or 'a!=b', where a and b are single lowercase letters standing for integer variables. Decide whether you can assign integers to the variables so that every equation is true. First union all variables that must be equal; then check that no '!=' equation involves two variables in the same group.",
+  "An array of strings, each 4 characters long, of the form 'x==y' or 'x!=y'.",
+  "true if all equations can hold at once, false otherwise.",
+  "['a==b', 'b!=a'] → false; ['b==a', 'a==b'] → true; ['a==b', 'b==c', 'a!=c'] → false."],
+"Minimum cost to connect all points (Kruskal + DSU)": [
+  "You are given points on a 2D grid. Connecting two points costs their Manhattan distance |x1 − x2| + |y1 − y2|. Connect all the points so that every point can reach every other, at the minimum total cost; this is a minimum spanning tree. Use Kruskal's algorithm (sort all pairs by cost, add each one that joins two different components, using union-find) or Prim's algorithm.",
+  "An array of n points [x, y].",
+  "The minimum total cost to connect all points.",
+  "[[0, 0], [2, 2], [3, 10], [5, 2], [7, 0]] → 20; [[3, 12], [−2, 5], [−4, 1]] → 18."],
+
+/* graphs */
+"Counting questions: maximum edges, matrices, DAG edges": [
+  "Short counting exercises to build intuition about graph sizes. How many edges can a simple undirected graph with n vertices have? A simple directed graph? How many entries does its adjacency matrix have, and how many of them are used? What is the maximum number of edges in a directed acyclic graph (DAG) on n vertices?",
+  "The number of vertices n and the kind of graph.",
+  "The requested count, with a short justification.",
+  "n = 5: undirected max n(n − 1)/2 = 10 edges; directed max n(n − 1) = 20; DAG max n(n − 1)/2 = 10; adjacency matrix 25 entries."],
+"DFS vs BFS: the differences, and when to use each": [
+  "Compare depth-first search and breadth-first search. DFS goes as deep as possible before backtracking and uses a stack (or recursion); BFS explores level by level and uses a queue. Discuss their order of visiting, memory use, and which problems each one fits: shortest paths in unweighted graphs (BFS), cycle detection, topological sort and connected components (DFS or BFS).",
+  "A graph and a problem to solve.",
+  "Which traversal to use, and why.",
+  "Fewest moves to solve a puzzle → BFS (it finds shortest paths in unweighted graphs). Topological order of tasks → DFS post-order (or Kahn's BFS)."],
+"Is there a path from s to t? Does G have a cycle?": [
+  "Two basic graph questions. (1) Reachability: starting from vertex s and following edges, can you reach vertex t? Run DFS or BFS from s and check whether t gets visited. (2) Does the graph contain a cycle? For an undirected graph, an edge to an already-visited vertex other than the parent reveals one; for a directed graph, an edge to a vertex still on the DFS stack does.",
+  "A graph with n vertices and a list of edges; for reachability, also the vertices s and t.",
+  "(1) true if t is reachable from s. (2) true if the graph has a cycle.",
+  "n = 3, edges [[0, 1], [1, 2], [2, 0]], s = 0, t = 2 → reachable: true; has a cycle: true."],
+"Count the simple paths from s to t": [
+  "Count (or list) every simple path from vertex s to vertex t, where a simple path never visits a vertex twice. In a directed acyclic graph, DFS from s and add up the paths from each neighbour to t; memoising the count per vertex makes counting O(V + E). LeetCode's twin asks you to list every path from node 0 to node n − 1.",
+  "A directed acyclic graph (adjacency list) and two vertices s and t.",
+  "The number of paths from s to t, or the list of those paths.",
+  "Graph [[1, 2], [3], [3], []] (0 → 1, 0 → 2, 1 → 3, 2 → 3), from 0 to 3 → 2 paths: [0, 1, 3] and [0, 2, 3]."],
+"All-pairs shortest paths (Floyd–Warshall)": [
+  "Compute the shortest-path distance between every pair of vertices in a weighted graph (negative edges allowed, but no negative cycles). Floyd–Warshall allows the intermediate vertices 0, 1, …, k one at a time: dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]). Runs in O(V³). LeetCode's twin uses the distances to pick the city with the fewest reachable neighbours within a threshold.",
+  "The number of vertices n and a list of weighted edges [u, v, w].",
+  "An n × n matrix of shortest distances (∞ where no path exists).",
+  "n = 4, edges [[0, 1, 3], [1, 2, 1], [2, 3, 7], [0, 3, 15]] → dist[0][3] = 11 (0 → 1 → 2 → 3), dist[0][2] = 4."],
+"Articulation points (cut vertices)": [
+  "An articulation point is a vertex whose removal (together with its edges) splits a connected undirected graph into more pieces. Find all of them in O(V + E) with Tarjan's DFS: record each vertex's discovery time and the 'low' value, the earliest discovery time reachable from its subtree using one back edge. A non-root vertex u is a cut vertex if some child v has low[v] ≥ disc[u]; the root is one if it has two or more DFS children.",
+  "A connected undirected graph (n vertices, list of edges).",
+  "The list of articulation points.",
+  "Edges 0–1, 1–2, 2–0, 1–3, 3–4 → [1, 3]."],
+"Bridges (cut edges)": [
+  "A bridge is an edge whose removal disconnects the graph (or increases its number of components). Find all bridges in O(V + E) with Tarjan's DFS low-link values: a tree edge u–v is a bridge exactly when low[v] > disc[u], meaning v's subtree has no other way back to u or above.",
+  "An undirected graph with n vertices and a list of edges.",
+  "The list of bridges.",
+  "n = 4, edges [[0, 1], [1, 2], [2, 0], [1, 3]] → [[1, 3]]."],
+"Euler circuits": [
+  "An Euler circuit is a closed walk that uses every edge of the graph exactly once and returns to its start. In a connected undirected graph, one exists if and only if every vertex has even degree. Check the condition, then build the circuit with Hierholzer's algorithm. LeetCode's twin finds an Euler path through a set of airline tickets, choosing the alphabetically smallest itinerary.",
+  "A graph (or, for the twin, a list of tickets [from, to] starting at 'JFK').",
+  "An Euler circuit (or path) as a sequence of vertices, or a statement that none exists.",
+  "Tickets [['MUC', 'LHR'], ['JFK', 'MUC'], ['SFO', 'SJC'], ['LHR', 'SFO']] → ['JFK', 'MUC', 'LHR', 'SFO', 'SJC']."],
+"Strongly connected components": [
+  "In a directed graph, two vertices are strongly connected if each can reach the other. A strongly connected component (SCC) is a maximal group of mutually reachable vertices. Find all SCCs in O(V + E) with Kosaraju's algorithm (DFS for finishing order, then DFS on the reversed graph in reverse finishing order) or with Tarjan's algorithm.",
+  "A directed graph with n vertices and a list of edges.",
+  "The list of SCCs, each a set of vertices.",
+  "Edges 0 → 1, 1 → 2, 2 → 0, 2 → 3, 3 → 4 → SCCs {0, 1, 2}, {3}, {4}."],
+"Count connected components with DFS and with BFS": [
+  "A connected component of an undirected graph is a maximal set of vertices that can all reach each other. Count the components: loop over the vertices, and whenever you find one that hasn't been visited, start a new traversal from it (DFS in one version, BFS in the other) and add 1 to the count.",
+  "An undirected graph with n vertices and a list of edges (or an adjacency matrix).",
+  "The number of connected components.",
+  "n = 5, edges [[0, 1], [1, 2], [3, 4]] → 2."],
+"Detect a cycle in an undirected graph": [
+  "Decide whether an undirected graph contains a cycle. With DFS, a cycle exists if you reach an already-visited vertex that is not the parent you came from. With union-find, a cycle exists if an edge connects two vertices that are already in the same set. LeetCode's twin returns the edge that closes the cycle.",
+  "An undirected graph with n vertices and a list of edges.",
+  "true if the graph contains a cycle, false otherwise.",
+  "Edges [[1, 2], [1, 3], [2, 3]] → true; [[1, 2], [2, 3]] → false."],
+"Detect a cycle in a directed graph": [
+  "Decide whether a directed graph has a cycle. In a DFS, colour vertices white (unvisited), grey (on the current recursion stack) and black (finished); an edge to a grey vertex means a cycle. Alternatively, run Kahn's topological sort: if some vertices are never processed, there is a cycle. In LeetCode's twin, courses with prerequisites can all be finished only if there is no cycle.",
+  "A directed graph: n vertices and a list of edges (e.g. numCourses and prerequisite pairs).",
+  "true if there is a cycle (for the twin: false if the courses can't all be finished).",
+  "numCourses = 2, prerequisites [[1, 0]] → no cycle, can finish → true; [[1, 0], [0, 1]] → cycle → false."],
+"Depth (longest path) of a DAG": [
+  "Find the number of edges on the longest path in a directed acyclic graph. Process vertices in topological order and set longest[v] = max(longest[u] + 1) over all edges u → v; or DFS with memoisation. LeetCode's twin finds the longest increasing path in a grid, which is the same idea on an implicit DAG.",
+  "A DAG (n vertices and a list of edges), or for the twin a matrix of integers.",
+  "The length of the longest path.",
+  "Edges 0 → 1, 1 → 2, 0 → 2, 2 → 3 → 3. Twin: [[9, 9, 4], [6, 6, 8], [2, 1, 1]] → 4 (1 → 2 → 6 → 9)."],
+"Is the topological order unique?": [
+  "A topological order lists the vertices of a DAG so that every edge goes from an earlier vertex to a later one. Usually several orders are valid. Decide whether exactly one is valid. In Kahn's algorithm, the order is unique if and only if the queue never holds more than one vertex at a time, which is equivalent to consecutive vertices in the order always being joined by an edge.",
+  "A DAG with n vertices and a list of edges.",
+  "true if the topological order is unique (optionally the order), false otherwise.",
+  "Edges 0 → 1, 1 → 2 → unique: [0, 1, 2]. Edges 0 → 1, 0 → 2 → not unique ([0, 1, 2] and [0, 2, 1])."],
+"Course prerequisites: find an order, and the minimum number of semesters": [
+  "There are n courses numbered 0..n − 1. A prerequisite pair [a, b] means you must take course b before course a. (1) Return an order in which all courses can be taken, or an empty list if it is impossible because of a cycle. (2) If you may take any number of courses in a semester, as long as their prerequisites were done in earlier semesters, find the minimum number of semesters: the number of levels in Kahn's BFS.",
+  "The number of courses n and a list of prerequisite pairs [a, b].",
+  "(1) A valid course order, or [] if none exists. (2) The minimum number of semesters, or −1 if impossible.",
+  "n = 4, prerequisites [[1, 0], [2, 0], [3, 1], [3, 2]] → order [0, 1, 2, 3] (or [0, 2, 1, 3]); semesters 3."],
+"LCA and the shortest ancestral path in a DAG": [
+  "In a DAG, an ancestor of v is any vertex that can reach v. Unlike in a tree, two vertices can have several lowest common ancestors. Given v and w, find a common ancestor a that minimises dist(a, v) + dist(a, w), together with that shortest ancestral path. Run BFS backwards (along reversed edges) from v and from w, and pick the common vertex with the smallest total distance.",
+  "A DAG and two vertices v and w.",
+  "A common ancestor and the length of the shortest ancestral path (or −1 if they have no common ancestor).",
+  "Edges 1 → 3, 2 → 3, 1 → 4, 3 → 5, 4 → 6; v = 5, w = 6 → ancestor 1, length 4 (1 → 3 → 5 and 1 → 4 → 6)."],
+"Dijkstra vs Prim: what's different?": [
+  "Dijkstra's and Prim's algorithms have almost the same code: both grow a set of vertices from a start vertex, each time taking the outside vertex with the smallest key from a priority queue. Explain the one key difference: Dijkstra's key is the total distance from the source (dist[u] + w), while Prim's key is just the weight of the single connecting edge (w). Also explain what each produces: a shortest-path tree vs a minimum spanning tree.",
+  "A weighted undirected graph and a start vertex.",
+  "An explanation of the difference, plus the tree each algorithm builds on the example.",
+  "Triangle A–B 2, B–C 2, A–C 3, start A: Dijkstra keeps edges A–B and A–C (dist C = 3); Prim keeps A–B and B–C (total weight 4)."],
+"Reverse a directed graph": [
+  "Build the reverse (transpose) of a directed graph: a graph with the same vertices in which every edge u → v becomes v → u. With adjacency lists, go through every edge u → v of the original and add u to v's list in the new graph, in O(V + E). The reversed graph is used, for example, in Kosaraju's SCC algorithm.",
+  "A directed graph as adjacency lists.",
+  "The adjacency lists of the reversed graph.",
+  "0 → [1, 2], 1 → [2], 2 → [] reversed → 0 → [], 1 → [0], 2 → [0, 1]."],
+"Bipartite check and matchings": [
+  "A graph is bipartite if its vertices can be split into two groups so that every edge joins a vertex from one group to a vertex from the other, which is the same as colouring it with two colours so that no edge joins two vertices of the same colour. Check this with BFS or DFS colouring, handling every component. A graph is bipartite exactly when it has no odd-length cycle. The book also discusses matchings in bipartite graphs.",
+  "An undirected graph as adjacency lists (it may be disconnected).",
+  "true if the graph is bipartite, false otherwise.",
+  "[[1, 3], [0, 2], [1, 3], [0, 2]] (a 4-cycle) → true; [[1, 2, 3], [0, 2], [0, 1, 3], [0, 2]] → false (it contains a triangle)."],
+"Maximum spanning tree; are MSTs unique?": [
+  "(1) Find a maximum spanning tree: a spanning tree whose total edge weight is as large as possible. Run Kruskal's algorithm with the edges sorted in decreasing order, or negate all weights and find a minimum spanning tree. (2) Explain when a graph's minimum spanning tree is unique; for example, when all edge weights are distinct, it always is.",
+  "A connected, weighted, undirected graph.",
+  "(1) The edges and total weight of a maximum spanning tree. (2) Whether the MST is unique, with a reason.",
+  "Triangle with weights A–B 1, B–C 2, A–C 3 → maximum spanning tree {A–C, B–C}, weight 5; the MST {A–B, B–C} is unique because the weights are distinct."],
+"Number of islands (grid DFS/BFS)": [
+  "The grid is a map of '1' (land) and '0' (water). An island is a group of land cells connected horizontally or vertically (not diagonally), and the area outside the grid counts as water. Count the islands: scan every cell, and each time you find unvisited land, add 1 and flood-fill that whole island with DFS or BFS so it is not counted again.",
+  "A 2D grid of characters '1' and '0'.",
+  "The number of islands.",
+  "[['1','1','0','0','0'], ['1','1','0','0','0'], ['0','0','1','0','0'], ['0','0','0','1','1']] → 3."],
+"Rotting oranges (multi-source BFS)": [
+  "Each grid cell is 0 (empty), 1 (fresh orange) or 2 (rotten orange). Every minute, each fresh orange that is horizontally or vertically next to a rotten orange becomes rotten. Return the number of minutes until no fresh orange is left, or −1 if some fresh orange can never be reached. Start a BFS from all rotten oranges at once and count the levels.",
+  "A 2D grid of 0, 1 and 2.",
+  "The minimum number of minutes, or −1.",
+  "[[2, 1, 1], [1, 1, 0], [0, 1, 1]] → 4; [[2, 1, 1], [0, 1, 1], [1, 0, 1]] → −1; [[0, 2]] → 0."],
+"Network delay time (Dijkstra)": [
+  "A network has n nodes labelled 1..n and directed edges times[i] = [u, v, w], meaning a signal takes w time to travel from u to v. A signal is sent from node k. Return the time it takes for every node to receive it, which is the largest shortest-path distance from k. If some node can never receive it, return −1. Use Dijkstra's algorithm.",
+  "A list of directed edges [u, v, w], the number of nodes n, and a source k.",
+  "The time until all nodes receive the signal, or −1.",
+  "times [[2, 1, 1], [2, 3, 1], [3, 4, 1]], n = 4, k = 2 → 2; times [[1, 2, 1]], n = 2, k = 2 → −1."],
+"Cheapest flights within K stops (Bellman–Ford)": [
+  "There are n cities and a list of one-way flights [from, to, price]. Find the cheapest route from src to dst that uses at most k stops (that is, at most k + 1 flights). Plain Dijkstra ignores the stop limit; instead run Bellman–Ford for k + 1 rounds, relaxing every edge in each round from a copy of the previous round's costs.",
+  "The number of cities n, a list of flights [from, to, price], and integers src, dst and k.",
+  "The cheapest price, or −1 if no route with at most k stops exists.",
+  "n = 4, flights [[0,1,100], [1,2,100], [2,0,100], [1,3,600], [2,3,200]], src 0, dst 3, k = 1 → 700 (0 → 1 → 3)."],
+"Clone a graph (hash map of copies)": [
+  "You are given a reference to one node of a connected undirected graph; each node has a value and a list of neighbours. Return a deep copy: new node objects with the same values and the same connections, sharing no nodes with the original. Traverse with DFS or BFS, using a hash map from original node to its copy so that each node is copied exactly once, even if there are cycles.",
+  "A reference to one node of a connected undirected graph.",
+  "A reference to the corresponding node in the cloned graph.",
+  "Adjacency list [[2, 4], [1, 3], [2, 4], [1, 3]] (a 4-cycle) → a new graph with the same adjacency list."],
+"Word ladder (BFS on an implicit graph)": [
+  "Transform beginWord into endWord by changing one letter at a time, where every intermediate word (and endWord) must appear in the given word list. Find the number of words in the shortest such sequence, counting both beginWord and endWord. Treat words as vertices, with edges between words that differ by one letter, and run BFS.",
+  "Strings beginWord and endWord, and a list of allowed words (all the same length).",
+  "The number of words in the shortest transformation sequence, or 0 if none exists.",
+  "'hit' → 'cog' with ['hot', 'dot', 'dog', 'lot', 'log', 'cog'] → 5 (hit → hot → dot → dog → cog); without 'cog' in the list → 0."],
+"DFS memory use, DFS and shortest paths, Dijkstra true/false": [
+  "True/false and multiple-choice questions that test common misconceptions. How much memory does DFS use (proportional to the depth of the recursion, O(V) in the worst case)? Can DFS find shortest paths in an unweighted graph (not in general)? Does Dijkstra's algorithm work with negative edge weights (no, even without negative cycles)? Justify each answer with a small counter-example where needed.",
+  "A statement or question about DFS or Dijkstra.",
+  "True/false (or the correct option) with a justification.",
+  "'Dijkstra works if there are negative edges but no negative cycles' → false: with A→B 2, A→C 3, C→B −2, it finalises B at 2, but the true distance is 1."],
+
+/* greedy */
+"Merge files at minimum total cost (always merge the two smallest)": [
+  "You have n sorted files of given sizes and want to merge them into one file. You can merge two files at a time, and merging files of sizes a and b costs a + b (and produces a file of size a + b). Find the minimum total cost. Always merge the two smallest files available, using a min-heap; this is the same as building a Huffman tree.",
+  "An array of n file sizes.",
+  "The minimum total merge cost.",
+  "[2, 4, 3] → 14 (merge 2 + 3 = 5, then 5 + 4 = 9; total 5 + 9); [1, 8, 3, 5] → 30."],
+"Interval scheduling: why earliest-finish wins": [
+  "Given a set of intervals (e.g. meeting requests with start and end times), select as many intervals as possible such that no two selected intervals overlap. Sort by end time and repeatedly choose the interval that finishes earliest among those that start after the last chosen one ends. Prove why this greedy choice is optimal. LeetCode's twin asks for the minimum number of intervals to remove, which is n minus the maximum you can keep.",
+  "An array of n intervals [start, end].",
+  "The maximum number of non-overlapping intervals (or the minimum number to remove).",
+  "[[1, 2], [2, 3], [3, 4], [1, 3]] → keep 3 ([1,2], [2,3], [3,4]), so remove 1."],
+"Fewest classrooms for all classes (interval partitioning)": [
+  "Each class has a start time and an end time. Two classes that overlap in time can't share a room. Find the fewest classrooms needed to hold all the classes. The answer equals the maximum number of classes running at the same moment. Sort by start time and use a min-heap of end times, or sweep through sorted start and end times.",
+  "An array of n intervals [start, end].",
+  "The minimum number of classrooms.",
+  "[[0, 30], [5, 10], [15, 20]] → 2; [[7, 10], [2, 4]] → 1."],
+"Making change: when the greedy coin choice works": [
+  "The greedy change-making method repeatedly takes the largest coin that is not more than the remaining amount. Show that this gives the minimum number of coins for some coin systems, such as 1, 5, 10, 25, but not for others, using a counter-example. When greedy fails, dynamic programming (Coin Change) is needed.",
+  "A set of coin denominations and an amount.",
+  "The number of coins greedy uses, and whether that is optimal.",
+  "Coins {1, 5, 10, 25}, amount 30 → greedy 25 + 5 (2 coins, optimal). Coins {1, 3, 4}, amount 6 → greedy 4 + 1 + 1 (3 coins), but 3 + 3 uses only 2."],
+"Fewest refuelling stops on a road trip": [
+  "A car starts at position 0 with startFuel litres and drives towards a destination target miles away, using one litre per mile. Gas stations lie along the way; station i is at position[i] and has fuel[i] litres. When the car stops at a station it takes all of that station's fuel. Find the fewest stops needed to reach the destination, or −1 if it is impossible. Drive as far as possible, and only when you run short, refuel from the largest station passed so far (a max-heap).",
+  "Integers target and startFuel, and a list of stations [position, fuel] sorted by position.",
+  "The minimum number of refuelling stops, or −1.",
+  "target 100, startFuel 10, stations [[10, 60], [20, 30], [30, 30], [60, 40]] → 2 (stop at 10, then at 60)."],
+"Fractional knapsack": [
+  "Each item has a weight and a value, and the knapsack can carry at most W total weight. Unlike 0/1 knapsack, you may take any fraction of an item and receive that fraction of its value. Maximise the total value. Sort the items by value per unit weight and take them greedily, splitting the last item if necessary.",
+  "n items as (weight, value) pairs and a capacity W.",
+  "The maximum total value (possibly a fraction).",
+  "Items (10, 60), (20, 100), (30, 120), W = 50 → 240 (all of the first two, plus 20/30 of the third)."],
+"Minimum number of railway platforms": [
+  "You are given the arrival and departure times of all trains that stop at a station on one day. A train occupies a platform from its arrival until its departure, and no train should have to wait. Find the minimum number of platforms needed, which is the largest number of trains at the station at the same moment. Sort arrivals and departures separately and sweep through them with two pointers.",
+  "Two arrays of n times: arrivals and departures (train i arrives at arr[i] and leaves at dep[i]).",
+  "The minimum number of platforms.",
+  "arr [9:00, 9:40, 9:50, 11:00, 15:00, 18:00], dep [9:10, 12:00, 11:20, 11:30, 19:00, 20:00] → 3."],
+"Fewest cell towers to cover houses along a road": [
+  "Houses are at given positions (in km) along a straight road. A cell tower covers every house within 4 km of it in either direction. Place the fewest towers so that every house is covered. Greedy: go from west to east, and at the first uncovered house, place a tower 4 km further east, which covers that house and as many later houses as possible.",
+  "A sorted list of house positions along the road.",
+  "The minimum number of towers (and their positions).",
+  "Houses at 1, 3, 9, 12, 20 → towers at 5 (covers 1–9), 16 (covers 12–20) → 2."],
+"Order songs on a tape to minimise expected access time": [
+  "n songs are stored one after another on a tape. To play song i, the tape must wind past every song stored before it, so its access time is the sum of the lengths of the songs before it, plus its own. If every song is requested with equal probability, find the order that minimises the expected access time (shortest songs first). With request frequencies fᵢ, sort by length/frequency instead.",
+  "n song lengths (and, in the variant, request frequencies).",
+  "The order of songs that minimises the expected access time, and that expected time.",
+  "Lengths [3, 1, 2] → order 1, 2, 3 → access times 1, 3, 6 → expected time 10/3."],
+"Unit-time events with deadlines and profits": [
+  "There are n jobs, each taking exactly one unit of time, with a deadline and a profit. Only one job can run at a time, and a job earns its profit only if it finishes by its deadline. Choose and schedule jobs to maximise the total profit. Consider jobs in decreasing order of profit and put each one in the latest free time slot no later than its deadline. (LeetCode's twin has courses with varying durations and is solved with a heap.)",
+  "n jobs, each with a deadline and a profit.",
+  "The maximum total profit (and which jobs are scheduled).",
+  "Jobs (deadline, profit): (2, 100), (1, 19), (2, 27), (1, 25), (3, 15) → 142 (jobs worth 27, 100 and 15)."],
+"Shortest job first to minimise total waiting time": [
+  "n jobs with known running times wait for a single processor, which runs one job at a time to completion. A job's waiting time is the time from the start until it begins running. Find the order that minimises the total (equivalently, average) waiting time, and prove that running the shortest jobs first is optimal using an exchange argument.",
+  "An array of n job running times.",
+  "The best order and the minimum total waiting time.",
+  "[3, 1, 2] → order 1, 2, 3 → waits 0, 1, 3 → total 4 (the order 3, 1, 2 would give 0 + 3 + 4 = 7)."],
+"Huffman coding: build the tree by hand": [
+  "Huffman coding assigns shorter bit strings to more frequent characters, and no code is a prefix of another. Build the tree by repeatedly merging the two least frequent nodes into a new node whose frequency is their sum, until one tree remains. Left edges read 0 and right edges 1. Then read off each character's code and compute the total number of bits.",
+  "A set of characters with their frequencies.",
+  "The Huffman tree, each character's code, and the total encoded length.",
+  "a:45, b:13, c:12, d:16, e:9, f:5 → a = 0, c = 100, b = 101, d = 111, f = 1100, e = 1101; total 224 bits."],
+"Jump Game I & II (farthest reach)": [
+  "You start at index 0 of an array, where each element is the maximum number of steps you may jump forward from that position. Jump Game I: decide whether you can reach the last index. Track the farthest reachable index while scanning. Jump Game II (assuming the end is reachable): find the minimum number of jumps, treating each jump as a BFS level over the range of indexes reachable so far.",
+  "An array of n non-negative integers.",
+  "I: true or false. II: the minimum number of jumps.",
+  "[2, 3, 1, 1, 4] → I: true; II: 2 (0 → 1 → 4). [3, 2, 1, 0, 4] → I: false."],
+"Gas station (running surplus)": [
+  "n gas stations stand on a circular route. Station i gives you gas[i] units of fuel, and driving from station i to station i + 1 costs cost[i]. You start with an empty tank at a station of your choice. Return the index of the station from which you can drive all the way around once, or −1 if no such station exists (when a solution exists, it is unique). If the total gas is at least the total cost, a solution exists; start after the last point where the running tank went negative.",
+  "Two arrays gas and cost, each of length n.",
+  "The starting station index, or −1.",
+  "gas [1, 2, 3, 4, 5], cost [3, 4, 5, 1, 2] → 3; gas [2, 3, 4], cost [3, 4, 3] → −1."],
+"Minimum arrows to burst balloons": [
+  "Balloons are taped to a wall; each is described by the horizontal range [xstart, xend] it covers. An arrow shot straight up from position x bursts every balloon with xstart ≤ x ≤ xend. Find the minimum number of arrows that bursts every balloon. Sort by end point, shoot at the end of the first balloon, skip every balloon that arrow hits, and repeat.",
+  "An array of n intervals [xstart, xend].",
+  "The minimum number of arrows.",
+  "[[10, 16], [2, 8], [1, 6], [7, 12]] → 2 (shoot at 6 and at 12); [[1, 2], [3, 4], [5, 6], [7, 8]] → 4."],
+
+/* divide & conquer */
+"Choose between algorithms A, B and C by their recurrences": [
+  "Three algorithms solve the same problem. A divides it into 5 subproblems of half the size, solves them recursively, and combines the answers in linear time. B solves two subproblems of size n − 1 and combines them in constant time. C divides it into 9 subproblems of size n/3 and combines them in O(n²). Write each recurrence, solve it, and pick the algorithm with the best running time.",
+  "The descriptions of the three algorithms.",
+  "The three recurrences, their solutions, and the best algorithm.",
+  "A: T(n) = 5T(n/2) + O(n) = O(n^2.32); B: T(n) = 2T(n − 1) + O(1) = O(2ⁿ); C: T(n) = 9T(n/3) + O(n²) = O(n² log n) → choose C."],
+"Max and min by divide & conquer (3n/2 − 2 comparisons)": [
+  "Find both the maximum and the minimum of an array with divide and conquer. Split the array into two halves, find the max and min of each half recursively, then combine with two comparisons (max vs max, min vs min). With base cases of 1 element (no comparisons) and 2 elements (one comparison), show that the total is 3n/2 − 2 comparisons when n is a power of 2.",
+  "An array of n integers.",
+  "The maximum and the minimum, and the number of comparisons used.",
+  "[3, 5, 1, 8, 2, 9, 4, 7] → max 9, min 1, using 3·8/2 − 2 = 10 comparisons."],
+"Binary search, merge sort and quick sort as D&C": [
+  "Implement three classic divide-and-conquer algorithms and identify their three phases: divide (split the problem), conquer (solve the parts recursively) and combine (merge the answers). Binary search discards half the array each step; merge sort splits in half and merges; quicksort partitions around a pivot and needs no combine step. Give each one's recurrence and running time.",
+  "A sorted array and a target (binary search), or an unsorted array (the sorts).",
+  "The target's index, or the sorted array; plus each recurrence and complexity.",
+  "[5, 2, 3, 1] → [1, 2, 3, 5]. Recurrences: binary search T(n) = T(n/2) + 1 = O(log n); merge sort T(n) = 2T(n/2) + n = O(n log n); quicksort O(n log n) on average, O(n²) in the worst case."],
+"Search an \"infinite\" sorted array (exponential search)": [
+  "A sorted array is so large that its length is unknown; reading past the end returns a sentinel value larger than any real element (e.g. 2³¹ − 1). Find the index of a target. Double an upper bound (1, 2, 4, 8, …) until the value there is ≥ the target, then binary search between the last two bounds. This takes O(log p), where p is the target's position.",
+  "Read access to a sorted array of unknown length (via get(i)), and a target.",
+  "The index of the target, or −1 if it is not present.",
+  "[−1, 0, 3, 5, 9, 12, …], target 9 → 4; target 2 → −1."],
+"Is there an index i with A[i] = i?": [
+  "The array is sorted in increasing order and its elements are distinct integers. Find an index i where the element equals its own index. Because the values are distinct integers, A[i] − i never decreases as i grows, so you can binary search: if A[mid] < mid, the answer can only be to the right; if A[mid] > mid, only to the left.",
+  "A sorted array of n distinct integers.",
+  "An index i with A[i] = i, or −1 if there is none.",
+  "[−10, −5, 0, 3, 7] → 3; [0, 2, 5, 8, 17] → 0; [−10, −5, 3, 4, 7, 9] → −1."],
+"Median of two sorted arrays": [
+  "Two sorted arrays have sizes m and n. Find the median of all m + n elements taken together: the middle element if the total is odd, or the average of the two middle elements if it is even. Do it in O(log(min(m, n))) by binary searching for a partition that splits the combined elements into a left half and a right half, with everything on the left ≤ everything on the right, without merging the arrays.",
+  "Two sorted arrays A (size m) and B (size n), not both empty.",
+  "The median of the combined elements.",
+  "[1, 3] and [2] → 2.0; [1, 2] and [3, 4] → 2.5."],
+"Strassen matrix multiplication": [
+  "Multiplying two n × n matrices the usual way takes O(n³). Split each matrix into four n/2 × n/2 blocks. The straightforward block method still needs 8 block multiplications. Strassen's method computes 7 cleverly chosen products (M1 to M7) plus some additions and subtractions, giving T(n) = 7T(n/2) + O(n²) = O(n^log₂7) ≈ O(n^2.81). Derive the recurrence and its solution.",
+  "Two n × n matrices (n a power of 2).",
+  "Their product, computed with 7 recursive multiplications per level, and the resulting complexity.",
+  "[[1, 2], [3, 4]] × [[5, 6], [7, 8]] → [[19, 22], [43, 50]], using 7 multiplications instead of 8."],
+"Stock pricing: the best days to buy and sell": [
+  "Given a stock's price on each of n days, choose one day to buy and a later day to sell so that the profit (sell price − buy price) is as large as possible. Divide and conquer: the best trade lies entirely in the left half, entirely in the right half, or buys in the left half and sells in the right half (min of the left, max of the right), giving O(n log n). Then do it in a single O(n) pass that tracks the lowest price so far.",
+  "An array of n daily prices.",
+  "The maximum profit (0 if no profitable trade exists), and optionally the buy and sell days.",
+  "[7, 1, 5, 3, 6, 4] → 5 (buy on day 1 at 1, sell on day 4 at 6); [7, 6, 4, 3, 1] → 0."],
+"Laptop drop test (egg drop)": [
+  "You have k identical laptops (the classic version uses eggs) and a building with n floors. There is a threshold floor: a laptop dropped from above it breaks, and one dropped from it or below survives and can be reused. Find the minimum number of drops that guarantees you will identify the threshold in the worst case. DP: with m drops and k laptops you can test f(m, k) = f(m − 1, k − 1) + f(m − 1, k) + 1 floors; find the smallest m with f(m, k) ≥ n.",
+  "The number of laptops (eggs) k and the number of floors n.",
+  "The minimum number of drops in the worst case.",
+  "k = 1, n = 2 → 2; k = 2, n = 6 → 3; k = 3, n = 14 → 4."],
+"Is n a perfect square? (binary search)": [
+  "Decide whether a positive integer n is the square of an integer, without using a built-in square-root function. Binary search for x in 1..n with x·x = n: if mid·mid is too small, go right; if too large, go left. Use 64-bit arithmetic (or compare mid with n / mid) to avoid overflow.",
+  "A positive integer n.",
+  "true if n is a perfect square, false otherwise.",
+  "16 → true; 14 → false; 2147395600 → true (46340²)."],
+"Shuffle a1..an b1..bn into a1 b1 a2 b2 … in place": [
+  "An array of 2n elements holds a1, a2, …, an followed by b1, b2, …, bn. Rearrange it into a1, b1, a2, b2, …, an, bn. With extra space this is a single pass. The book's challenge is to do it in place: swap the middle blocks to divide the problem into two halves and recurse, for O(n log n).",
+  "An array of 2n elements and the value n.",
+  "The array rearranged so that the two halves alternate.",
+  "[1, 2, 3, 4, 5, 6] with n = 3 (a = 1, 2, 3; b = 4, 5, 6) → [1, 4, 2, 5, 3, 6]."],
+"Maximum contiguous subsequence (D&C)": [
+  "Find the contiguous subarray (at least one element) with the largest sum, using divide and conquer. The best subarray lies entirely in the left half, entirely in the right half, or crosses the middle. The crossing case is the best suffix of the left half plus the best prefix of the right half, computed in linear time. This gives T(n) = 2T(n/2) + O(n) = O(n log n).",
+  "An array of n integers (some may be negative).",
+  "The maximum subarray sum.",
+  "[−2, 1, −3, 4, −1, 2, 1, −5, 4] → 6 (the subarray [4, −1, 2, 1]); [−3, −1, −2] → −1."],
+"Closest pair of points in O(n log n)": [
+  "Among n points in the plane, find the two with the smallest Euclidean distance. Checking every pair is O(n²). Divide and conquer: sort by x, split at the median, find the closest pair in each half (δ = the smaller of the two distances), then check pairs that straddle the dividing line within a strip of width 2δ. Each strip point needs to be compared with at most 7 neighbours in y-order.",
+  "n points (x, y).",
+  "The closest pair and its distance.",
+  "(2, 3), (12, 30), (40, 50), (5, 1), (12, 10), (3, 4) → (2, 3) and (3, 4), distance √2 ≈ 1.414."],
+"kⁿ in O(log n)": [
+  "Compute kⁿ for an integer n using only O(log n) multiplications. Square repeatedly: kⁿ = (k^(n/2))² when n is even, and k·kⁿ⁻¹ when n is odd. Equivalently, multiply together k^(2ⁱ) for each 1 bit in n's binary form. LeetCode's twin also handles negative exponents (xⁿ = 1/x⁻ⁿ) and real bases.",
+  "A base k (or x) and an integer exponent n.",
+  "The value of kⁿ.",
+  "3¹³ = 3⁸ · 3⁴ · 3¹ = 1594323; 2.0⁻² = 0.25."],
+"The skyline problem": [
+  "Each building is a rectangle on flat ground given as [left, right, height]. Viewed from a distance, the buildings form an outline, the skyline. Return the skyline as a list of key points [x, height], each marking an x where the outline's height changes to the new height. The last key point always has height 0. Consecutive key points must not have the same height. Solve it by divide and conquer (merging two skylines) or with a sweep line and a max-heap.",
+  "An array of buildings [left, right, height], sorted by left.",
+  "The list of key points [x, height], sorted by x.",
+  "[[2, 9, 10], [3, 7, 15], [5, 12, 12], [15, 20, 10], [19, 24, 8]] → [[2, 10], [3, 15], [7, 12], [12, 0], [15, 10], [20, 8], [24, 0]]."],
+"Count inversions / reverse pairs during the merge": [
+  "An inversion is a pair of indices i < j with A[i] > A[j]; the count measures how far an array is from sorted. Count inversions in O(n log n) by modifying merge sort: when an element from the right half is merged before elements remaining in the left half, each of those left elements forms an inversion with it. LeetCode's twin counts 'reverse pairs' with A[i] > 2·A[j] using the same merge-step idea.",
+  "An array of n integers.",
+  "The number of inversions (or of reverse pairs).",
+  "Inversions of [2, 4, 1, 3, 5] → 3 ((2, 1), (4, 1), (4, 3)). Reverse pairs of [1, 3, 2, 3, 1] → 2."],
+
+/* dynamic programming */
+"Recurrence → code → memoized → bottom-up": [
+  "Practise the standard path to a dynamic programming solution. Start from a recurrence, such as Fibonacci F(n) = F(n − 1) + F(n − 2) or T(n) = Σ 2·T(i)·T(i − 1). Code it directly as recursion and observe the exponential blow-up from recomputing the same subproblems. Add memoisation (a cache), then rewrite it bottom-up as a table filled from the base cases upwards, and finally reduce the space if possible.",
+  "A recurrence with base cases, and an n.",
+  "The value for n, plus the time and space of each version.",
+  "Fibonacci, n = 40: naive recursion makes about 3·10⁸ calls; memoised and bottom-up versions do O(n) work; the bottom-up version needs only 2 variables."],
+"Maximum contiguous subsequence (Kadane)": [
+  "Find the contiguous subarray (containing at least one element) with the largest sum, in O(n) time and O(1) space. Kadane's algorithm: the best subarray ending at position i is either A[i] alone or A[i] added to the best subarray ending at i − 1. Track that value and the overall maximum.",
+  "An array of n integers.",
+  "The maximum subarray sum.",
+  "[−2, 1, −3, 4, −1, 2, 1, −5, 4] → 6; [5, 4, −1, 7, 8] → 23; [−1] → −1."],
+"Maximum sum with no two adjacent elements": [
+  "Pick a subset of the array's elements, with no two picked elements next to each other, so that their sum is as large as possible. (LeetCode's story: houses along a street hold money, and robbing two adjacent houses sets off an alarm.) DP: best[i] = max(best[i − 1], best[i − 2] + A[i]).",
+  "An array of n non-negative integers.",
+  "The maximum sum with no two adjacent elements chosen.",
+  "[1, 2, 3, 1] → 4 (1 + 3); [2, 7, 9, 3, 1] → 12 (2 + 9 + 1)."],
+"Maximum sum with no three consecutive elements": [
+  "Pick elements from the array to maximise their sum, with the rule that you may never pick three elements in a row (two in a row are allowed). DP: at index i, either skip A[i] (best[i − 1]), take A[i] but skip A[i − 1] (best[i − 2] + A[i]), or take A[i] and A[i − 1] but skip A[i − 2] (best[i − 3] + A[i − 1] + A[i]).",
+  "An array of n non-negative integers.",
+  "The maximum sum with no three consecutive elements chosen.",
+  "[100, 1000, 100, 1000, 1] → 2101 (100 + 1000 + 1000 + 1); [3000, 2000, 1000, 3, 10] → 5013."],
+"Catalan numbers / number of BSTs": [
+  "The Catalan numbers C(0), C(1), … satisfy C(0) = 1 and C(n) = Σ C(i)·C(n − 1 − i) for i from 0 to n − 1. They count many structures: BSTs with n keys, binary-tree shapes with n nodes, balanced strings of n pairs of parentheses, and more. Compute C(n) with a bottom-up DP in O(n²).",
+  "An integer n ≥ 0.",
+  "The n-th Catalan number.",
+  "n = 0 → 1; n = 3 → 5; n = 4 → 14; n = 5 → 42."],
+"Matrix-chain parenthesisation (and why greedy fails)": [
+  "Multiplying a p × q matrix by a q × r matrix takes p·q·r scalar multiplications. A product A1·A2·…·An gives the same result however it is parenthesised, but the cost can differ enormously. Find the parenthesisation with the fewest scalar multiplications. DP over intervals: m[i][j] = min over k of m[i][k] + m[k + 1][j] + p(i − 1)·p(k)·p(j). Also show a case where always multiplying the cheapest adjacent pair first fails.",
+  "An array p of n + 1 dimensions, where matrix Ai has size p[i − 1] × p[i].",
+  "The minimum number of scalar multiplications (and the parenthesisation).",
+  "p = [10, 30, 5, 60] → 4500, using (A1·A2)·A3 (A1·(A2·A3) would cost 27000)."],
+"Unbounded knapsack": [
+  "Each item type has a weight and a value, and you may take as many copies of each type as you like. Choose items with total weight at most W to maximise total value. DP over capacities: best[c] = max over items i with wᵢ ≤ c of best[c − wᵢ] + vᵢ. LeetCode's twin (Coin Change II) uses the same structure to count the number of ways to make an amount.",
+  "n item types as (weight, value) and a capacity W.",
+  "The maximum total value.",
+  "Items (5, 10), (10, 30), (15, 20), W = 100 → 300 (ten copies of the weight-10 item)."],
+"0/1 knapsack": [
+  "Each of n items has a weight and a value, and can be taken at most once. Choose a subset with total weight at most W that maximises the total value. DP over items and capacities: dp[i][c] = max(dp[i − 1][c], dp[i − 1][c − wᵢ] + vᵢ). This runs in O(n·W) time and can use a single row of size W + 1, iterated from high capacities to low.",
+  "n items as (weight, value) pairs and a capacity W.",
+  "The maximum total value (and optionally which items).",
+  "weights [1, 3, 4, 5], values [1, 4, 5, 7], W = 7 → 9 (the items with weights 3 and 4)."],
+"Making change with the fewest coins": [
+  "You have an unlimited supply of coins of each given denomination. Find the fewest coins that add up exactly to the amount, or −1 if the amount can't be made. Greedy doesn't always work, so use DP: min[a] = 1 + min over coins c ≤ a of min[a − c], with min[0] = 0.",
+  "An array of coin denominations and a target amount.",
+  "The minimum number of coins, or −1.",
+  "coins [1, 2, 5], amount 11 → 3 (5 + 5 + 1); coins [2], amount 3 → −1; amount 0 → 0."],
+"Longest increasing subsequence, n² → n log n": [
+  "A subsequence keeps elements in their original order but may skip some. Find the length of the longest subsequence whose elements are strictly increasing. O(n²) DP: lis[i] = 1 + max lis[j] over j < i with A[j] < A[i]. O(n log n): keep an array tails, where tails[k] is the smallest possible last element of an increasing subsequence of length k + 1, and update it with binary search.",
+  "An array of n integers.",
+  "The length of the longest strictly increasing subsequence.",
+  "[10, 9, 2, 5, 3, 7, 101, 18] → 4 (2, 3, 7, 101); [0, 1, 0, 3, 2, 3] → 4; [7, 7, 7] → 1."],
+"Box stacking": [
+  "You have boxes, each with a height, width and depth, and unlimited copies of each. A box can be rotated so that any face is its base. You can place box A on box B only if both base dimensions of A are strictly smaller than those of B. Build the tallest possible stack. Generate all rotations, sort them by base area, and run an LIS-style DP that maximises total height.",
+  "n boxes, each given as (height, width, depth).",
+  "The maximum height of a stack.",
+  "Boxes (4, 6, 7), (1, 2, 3), (4, 5, 6), (10, 12, 32) → 60."],
+"Building bridges (LIS in disguise)": [
+  "Cities are spread along the north and south banks of a river. Each north-bank city is paired with one south-bank city, and a bridge may only join a pair. Bridges are straight and must not cross each other. Build as many bridges as possible. Sort the pairs by north-bank position; the answer is the longest increasing subsequence of the south-bank positions.",
+  "n pairs (north position, south position).",
+  "The maximum number of non-crossing bridges.",
+  "Pairs (6, 2), (4, 3), (2, 6), (1, 5) → sorted by north: (1, 5), (2, 6), (4, 3), (6, 2) → LIS of [5, 6, 3, 2] = 2."],
+"Subset sum": [
+  "Decide whether some subset of the given positive integers adds up to exactly T. DP over sums: reachable[s] is true if some subset of the numbers processed so far sums to s. For each number x, update s from T down to x: reachable[s] = reachable[s] or reachable[s − x]. This takes O(n·T).",
+  "A set of n positive integers and a target T.",
+  "true if some subset sums to T, false otherwise (optionally the subset).",
+  "{3, 34, 4, 12, 5, 2}, T = 9 → true (4 + 5); T = 30 → false."],
+"Partition into two subsets with equal sums": [
+  "Decide whether the array can be split into two groups (every element in exactly one group) whose sums are equal. If the total is odd, the answer is immediately false. Otherwise it is a subset-sum question: is there a subset that sums to total/2?",
+  "An array of n positive integers.",
+  "true if such a split exists, false otherwise.",
+  "[1, 5, 11, 5] → true ({1, 5, 5} and {11}); [1, 2, 3, 5] → false."],
+"Edit distance": [
+  "Find the minimum number of single-character edits that turn string A into string B, where an edit is inserting a character, deleting a character or replacing one character with another. DP over prefixes: d[i][j] = d[i − 1][j − 1] if A[i] = B[j]; otherwise 1 + min(d[i − 1][j] (delete), d[i][j − 1] (insert), d[i − 1][j − 1] (replace)).",
+  "Two strings A (length m) and B (length n).",
+  "The edit distance.",
+  "'horse' → 'ros' → 3 (horse → rorse → rose → ros); 'intention' → 'execution' → 5."],
+"Floyd–Warshall all-pairs shortest paths": [
+  "Find the shortest distance between every pair of vertices in a weighted directed graph (negative edges allowed, but no negative cycles), viewing it as dynamic programming. dist_k[i][j] is the shortest path from i to j that uses only vertices 0..k as intermediate stops, and dist_k[i][j] = min(dist_(k−1)[i][j], dist_(k−1)[i][k] + dist_(k−1)[k][j]). It can be computed in place in O(V³).",
+  "An n × n weight matrix (∞ where there is no edge, 0 on the diagonal).",
+  "The n × n matrix of shortest distances.",
+  "Weights 0 → 1: 3, 1 → 2: 1, 0 → 2: 7 → dist[0][2] = 4 (via 1)."],
+"Optimal strategy for a coin game": [
+  "An even number of coins with given values lie in a row. Two players take turns; on each turn a player removes either the leftmost or the rightmost coin and keeps it. Both players play optimally. Find the maximum total the first player can guarantee. DP over intervals: f(i, j) = max(A[i] + min(f(i + 2, j), f(i + 1, j − 1)), A[j] + min(f(i + 1, j − 1), f(i, j − 2))).",
+  "An array of n coin values.",
+  "The maximum amount the first player can collect (or, in LeetCode's twin, whether the first player wins).",
+  "[5, 3, 7, 10] → 15 (take 10, then 5); [8, 15, 3, 7] → 22."],
+"Tiling with dominoes": [
+  "Count the ways to cover a 2 × n board completely with 2 × 1 dominoes, which can be placed vertically or horizontally. The last column is either one vertical domino or the end of two stacked horizontal dominoes, giving ways(n) = ways(n − 1) + ways(n − 2), a Fibonacci sequence. LeetCode's twin also allows L-shaped trominoes, which adds more states, and asks for the answer modulo 10⁹ + 7.",
+  "An integer n ≥ 1.",
+  "The number of tilings.",
+  "Dominoes only: n = 1 → 1, n = 2 → 2, n = 3 → 3, n = 4 → 5. With trominoes (the twin): n = 3 → 5."],
+"Longest palindromic subsequence": [
+  "Find the length of the longest subsequence (characters in order, not necessarily adjacent) that reads the same forwards and backwards. DP over intervals: if s[i] = s[j], lps(i, j) = lps(i + 1, j − 1) + 2; otherwise lps(i, j) = max(lps(i + 1, j), lps(i, j − 1)). It also equals the LCS of the string and its reverse.",
+  "A string s of length n.",
+  "The length of the longest palindromic subsequence.",
+  "'bbbab' → 4 ('bbbb'); 'cbbd' → 2 ('bb')."],
+"Longest palindromic substring (the DP version)": [
+  "Find the longest contiguous palindromic substring using a DP table. P[i][j] is true when s[i..j] is a palindrome: single characters are palindromes, two equal adjacent characters are palindromes, and otherwise P[i][j] = (s[i] = s[j] and P[i + 1][j − 1]). Fill the table by increasing substring length, tracking the longest true entry. It takes O(n²) time and space.",
+  "A string s of length n.",
+  "The longest palindromic substring.",
+  "'babad' → 'bab' (or 'aba'); 'cbbd' → 'bb'."],
+"How many times S appears in T as a subsequence": [
+  "Count the different ways of choosing positions in the longer string so that the chosen characters, in order, spell the shorter string; i.e. the number of times the shorter string occurs in the longer one as a subsequence. DP: ways[i][j] = ways[i − 1][j] + (long[i] = short[j] ? ways[i − 1][j − 1] : 0), with the empty pattern matching once.",
+  "A longer string (the text) and a shorter string (the pattern).",
+  "The number of distinct subsequences of the text equal to the pattern.",
+  "text 'rabbbit', pattern 'rabbit' → 3; text 'babgbag', pattern 'bag' → 5."],
+"Best path through a grid with down/right moves": [
+  "Each cell of a grid holds a cost. Start at the top-left cell and reach the bottom-right cell, moving only one cell down or one cell right at each step. Find the path whose total cost (the sum of all the cells on it) is smallest. DP: best[i][j] = grid[i][j] + min(best[i − 1][j], best[i][j − 1]).",
+  "An m × n grid of non-negative integers.",
+  "The minimum path sum.",
+  "[[1, 3, 1], [1, 5, 1], [4, 2, 1]] → 7 (1 → 3 → 1 → 1 → 1); [[1, 2, 3], [4, 5, 6]] → 12."],
+"Largest square sub-matrix of all 1s": [
+  "In a matrix of 0s and 1s, find the largest square block made entirely of 1s and return its area. DP: size[i][j], the side of the largest all-1 square whose bottom-right corner is (i, j), is 1 + min(size[i − 1][j], size[i][j − 1], size[i − 1][j − 1]) when the cell is 1, and 0 otherwise.",
+  "An m × n binary matrix.",
+  "The area of the largest all-1 square.",
+  "[[1,0,1,0,0], [1,0,1,1,1], [1,1,1,1,1], [1,0,0,1,0]] → 4 (a 2 × 2 square); [[0, 1], [1, 0]] → 1."],
+"Largest rectangular sub-matrix of all 1s": [
+  "In a matrix of 0s and 1s, find the largest rectangle made entirely of 1s and return its area. Process the matrix row by row, keeping for each column the height of the run of consecutive 1s ending at the current row. Each row then defines a histogram, and the answer is the largest 'largest rectangle in a histogram' over all rows.",
+  "An m × n binary matrix.",
+  "The area of the largest all-1 rectangle.",
+  "[[1,0,1,0,0], [1,0,1,1,1], [1,1,1,1,1], [1,0,0,1,0]] → 6."],
+"Fewest perfect squares summing to n": [
+  "Express n as a sum of perfect squares (1, 4, 9, 16, …) using as few terms as possible. The same square may be used more than once. DP: best[x] = 1 + min over squares s ≤ x of best[x − s], with best[0] = 0. (BFS over remainders also works.)",
+  "A positive integer n.",
+  "The minimum number of perfect squares that sum to n.",
+  "12 → 3 (4 + 4 + 4); 13 → 2 (4 + 9); 16 → 1."],
+"Fewest jumps to reach the end": [
+  "Each array element is the maximum number of steps you can jump forward from that position. Starting at index 0, find the minimum number of jumps to reach the last index (assume it is reachable). The O(n²) DP sets jumps[i] = 1 + min jumps[j] over every j that can reach i; the greedy O(n) method expands the reachable range one jump at a time.",
+  "An array of n non-negative integers.",
+  "The minimum number of jumps.",
+  "[2, 3, 1, 1, 4] → 2 (0 → 1 → 4); [2, 3, 0, 1, 4] → 2."],
+"Split gifts into two groups with minimum difference": [
+  "Divide a set of gifts with given values between two people so that the difference between their totals is as small as possible. Every gift goes to exactly one person. Using subset sum, find the reachable subset sum closest to half the total; the answer is total − 2·(that sum). LeetCode's twin, where stones smash each other, reduces to the same problem.",
+  "An array of n positive gift values.",
+  "The minimum possible difference between the two totals.",
+  "[1, 6, 11, 5] → 1 ({1, 5, 6} = 12 and {11}); [2, 7, 4, 1, 8, 1] → 1."],
+"Circus tower (2D LIS)": [
+  "Circus performers stand on each other's shoulders to form a tower. Each person must be both strictly shorter and strictly lighter than the person below them. Given every performer's height and weight, find the most people that can be in one tower. Sort by height (for equal heights, sort weights in decreasing order so that two people of the same height can't both be chosen), then find the longest increasing subsequence of the weights. LeetCode's twin nests envelopes by width and height.",
+  "n pairs (height, weight).",
+  "The maximum number of people in the tower.",
+  "(65, 100), (70, 150), (56, 90), (75, 190), (60, 95), (68, 110) → 6. Envelopes [[5, 4], [6, 4], [6, 7], [2, 3]] → 3."],
+"Longest common subsequence": [
+  "A subsequence keeps characters in their original order but may skip some. Find the length of the longest subsequence that the two strings have in common. DP over prefixes: if A[i] = B[j], lcs[i][j] = lcs[i − 1][j − 1] + 1; otherwise lcs[i][j] = max(lcs[i − 1][j], lcs[i][j − 1]). Trace back through the table to recover the subsequence itself.",
+  "Two strings A (length m) and B (length n).",
+  "The length of their longest common subsequence (optionally the subsequence).",
+  "'abcde' and 'ace' → 3 ('ace'); 'abc' and 'def' → 0."],
+"Word break": [
+  "Decide whether a string can be split into a sequence of one or more words, each of which is in the dictionary. Dictionary words may be reused. DP over prefixes: ok[i] is true if some j < i has ok[j] true and s[j..i) in the dictionary, with ok[0] = true.",
+  "A string s and a list of dictionary words.",
+  "true if s can be segmented into dictionary words, false otherwise.",
+  "'leetcode', ['leet', 'code'] → true; 'applepenapple', ['apple', 'pen'] → true; 'catsandog', ['cats', 'dog', 'sand', 'and', 'cat'] → false."],
+"Decode ways": [
+  "A message of letters was encoded as digits using A = 1, B = 2, …, Z = 26 and the digits were concatenated. Given the digit string, count how many different letter strings it could decode to. A '0' can only be part of '10' or '20', and two-digit codes must be between 10 and 26. DP: ways[i] = ways[i − 1] (if the last digit is 1–9) + ways[i − 2] (if the last two digits form 10–26).",
+  "A string of digits.",
+  "The number of ways to decode it (0 if it can't be decoded).",
+  "'12' → 2 (AB, L); '226' → 3 (BZ, VF, BBF); '06' → 0."],
+"Counting boolean parenthesisations": [
+  "A boolean expression alternates the symbols T (true) and F (false) with the operators AND (&), OR (|) and XOR (^). Count the ways to fully parenthesise it so that it evaluates to true. Interval DP: for each operator splitting [i, j], combine the counts of true and false results on each side, according to the operator's truth table.",
+  "A string of symbols (T/F) and a string of operators (&, |, ^), or one combined expression.",
+  "The number of parenthesisations that evaluate to true.",
+  "T | F & T → 2 ((T | F) & T and T | (F & T)); T ^ F & T → 2."],
+"Optimal binary search tree": [
+  "You are given n sorted keys and how often each key is searched for. Build a BST containing all the keys with the smallest expected search cost, i.e. the total over keys of frequency × depth (root depth 1). Frequent keys should be near the root, but the tree must still be a valid BST. Interval DP: cost[i][j] = min over roots r of cost[i][r − 1] + cost[r + 1][j] + (sum of the frequencies from i to j).",
+  "n sorted keys and their search frequencies.",
+  "The minimum total (or expected) search cost, and the tree structure.",
+  "keys [10, 12, 20], frequencies [34, 8, 50] → 142 (root 20, left child 10, and 12 as 10's right child)."],
+"Maximum-sum sub-matrix": [
+  "In a matrix of positive and negative integers, find the rectangular block of adjacent cells with the largest sum. Fix a pair of rows (top and bottom), collapse the columns between them into one array of column sums, and run Kadane's algorithm on it. Over all row pairs this is O(n³) for an n × n matrix.",
+  "An m × n matrix of integers.",
+  "The maximum sum of any rectangular sub-matrix (optionally its corners).",
+  "[[1, 2, −1, −4, −20], [−8, −3, 4, 2, 1], [3, 8, 10, 1, 3], [−4, −1, 1, 7, −6]] → 29 (rows 1–3, columns 1–3)."],
+
+/* bits & misc */
+"Check, set, clear and toggle the k-th bit": [
+  "Basic bit manipulation on an integer n, with bit positions counted from 0 at the least significant bit. Check whether bit k is 1 with (n >> k) & 1, or n & (1 << k). Set it with n | (1 << k). Clear it with n & ~(1 << k). Toggle it with n ^ (1 << k).",
+  "An integer n and a bit position k.",
+  "Whether bit k is set, and the values of n with bit k set, cleared and toggled.",
+  "n = 10 (0b1010), k = 1 → bit is set; set → 10; clear → 8 (0b1000); toggle → 8. k = 2 → not set; set → 14 (0b1110)."],
+"Is n a power of two?": [
+  "Decide whether n is a power of two (1, 2, 4, 8, …) in constant time. A power of two has exactly one 1 bit, and n − 1 flips that bit and sets all the bits below it, so n & (n − 1) == 0 exactly when n is a power of two. Zero and negative numbers are not powers of two.",
+  "An integer n.",
+  "true if n = 2ᵏ for some k ≥ 0, false otherwise.",
+  "1 → true; 16 → true; 18 → false; 0 → false."],
+"Count the 1 bits (Kernighan)": [
+  "Count how many bits are 1 in the binary representation of an integer (its population count, or Hamming weight). Brian Kernighan's trick: n & (n − 1) clears the lowest set bit, so repeating it until n becomes 0 takes exactly as many steps as there are 1 bits.",
+  "A non-negative integer n (or a 32-bit unsigned integer).",
+  "The number of 1 bits in n.",
+  "11 (0b1011) → 3; 128 (0b10000000) → 1; 2147483645 → 30."],
+"Reverse the bits of a number": [
+  "Reverse the order of the 32 bits of an unsigned integer: bit 0 becomes bit 31, bit 1 becomes bit 30, and so on. Loop 32 times, shifting the result left and appending n's lowest bit, or swap progressively larger bit groups with masks.",
+  "A 32-bit unsigned integer.",
+  "The integer whose 32 bits are the input's bits in reverse order.",
+  "1 (0b000…0001) → 2147483648 (0b1000…000); 43261596 → 964176192."],
+"Print a matrix in spiral order": [
+  "Visit every element of a matrix in clockwise spiral order: along the top row from left to right, down the right column, along the bottom row from right to left, up the left column, then repeat on the inner rectangle. Keep four boundaries (top, bottom, left, right) and shrink them after each side, taking care with single rows or columns.",
+  "An m × n matrix.",
+  "A list of all m·n elements in spiral order.",
+  "[[1, 2, 3], [4, 5, 6], [7, 8, 9]] → [1, 2, 3, 6, 9, 8, 7, 4, 5]; [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]] → [1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7]."],
+"Shuffle a deck of cards (Fisher–Yates)": [
+  "Randomly reorder an array so that every one of the n! possible orderings is equally likely. Fisher–Yates: for i from n − 1 down to 1, pick a random index j with 0 ≤ j ≤ i and swap A[i] with A[j]. This is O(n). Explain why the common mistake of picking j from the whole range 0..n − 1 on every step makes the result biased.",
+  "An array of n elements (e.g. 52 cards).",
+  "A uniformly random permutation of the array (shuffled in place).",
+  "[1, 2, 3] → any of its 6 orderings, each with probability 1/6."],
+"Rotate an array with the reversal algorithm": [
+  "Rotate the array to the right by k positions: each element moves k places right, and elements that fall off the end wrap around to the front. Do it in place with O(1) extra space using three reversals: reverse the whole array, then reverse the first k elements, then reverse the rest. Take k mod n first.",
+  "An array of n integers and a non-negative integer k.",
+  "The same array rotated right by k positions.",
+  "[1, 2, 3, 4, 5, 6, 7], k = 3 → [5, 6, 7, 1, 2, 3, 4]; [−1, −100, 3, 99], k = 2 → [3, 99, −1, −100]."],
+"Find anagrams in a dictionary": [
+  "Given a dictionary of words, find every group of two or more words that are anagrams of each other (they contain exactly the same letters, possibly in a different order). Give each word a signature by sorting its letters, use a hash map from signature to the list of words, and report the lists with more than one word.",
+  "A list of dictionary words.",
+  "The groups of words that are anagrams of each other.",
+  "['listen', 'silent', 'enlist', 'google', 'act', 'cat'] → [['listen', 'silent', 'enlist'], ['act', 'cat']]."],
+"Count grid pathways from A to B": [
+  "A robot starts at the top-left corner of an m × n grid and must reach the bottom-right corner, moving only right or down one cell at a time. Count the different paths. DP: paths[i][j] = paths[i − 1][j] + paths[i][j − 1]; or use the closed form C(m + n − 2, m − 1).",
+  "Two integers m (rows) and n (columns).",
+  "The number of distinct paths.",
+  "m = 3, n = 7 → 28; m = 3, n = 2 → 3."],
+"Reverse words and remove extra spaces": [
+  "Reverse the order of the words in a string, where words are separated by one or more spaces. The result must have no leading or trailing spaces and exactly one space between words. In place: reverse the whole string, reverse each word, then compact the spaces.",
+  "A string that may have leading, trailing or repeated spaces.",
+  "The words in reverse order, separated by single spaces.",
+  "'  hello   world ' → 'world hello'; 'a good   example' → 'example good a'."],
+"Move zeros to the end": [
+  "Move every 0 in the array to the end, while keeping the non-zero elements in their original relative order. Do it in place with a write pointer: copy each non-zero element forward to the write position, then fill the remaining positions with 0 (or swap as you go).",
+  "An array of n integers.",
+  "The same array with all zeros moved to the end.",
+  "[0, 1, 0, 3, 12] → [1, 3, 12, 0, 0]; [0] → [0]."],
+"Swap odd and even bits": [
+  "Swap each pair of adjacent bits of an integer: bit 0 with bit 1, bit 2 with bit 3, and so on. Extract the even-position bits with the mask 0x55555555 and the odd-position bits with 0xAAAAAAAA, shift them one place in opposite directions, and OR them together.",
+  "A 32-bit unsigned integer.",
+  "The integer with every pair of adjacent bits swapped.",
+  "23 (0b00010111) → 43 (0b00101011); 2 (0b10) → 1 (0b01)."],
+"Count set bits for every number 1..n": [
+  "For every integer i from 0 to n, compute the number of 1 bits in i's binary form, and return all the counts. Do it in O(n) total by reusing earlier answers: bits[i] = bits[i >> 1] + (i & 1), or bits[i] = bits[i & (i − 1)] + 1.",
+  "A non-negative integer n.",
+  "An array of n + 1 counts, where entry i is the number of 1 bits in i.",
+  "n = 2 → [0, 1, 1]; n = 5 → [0, 1, 1, 2, 1, 2]."],
+"Single number (XOR)": [
+  "Every element of the array appears exactly twice, except one element that appears once. Find it in O(n) time and O(1) extra space. XOR all the elements together: equal pairs cancel (x ^ x = 0), leaving the single element.",
+  "A non-empty array of integers in which every value appears twice except one.",
+  "The value that appears only once.",
+  "[2, 2, 1] → 1; [4, 1, 2, 1, 2] → 4."],
+"Single Number III (two singles)": [
+  "Every element appears exactly twice, except two different elements that each appear once. Find both. XOR everything to get x ^ y, which is non-zero; pick any 1 bit of it (where x and y differ), split all the numbers into two groups by that bit, and XOR each group separately. O(n) time, O(1) space.",
+  "An array of integers in which exactly two values appear once and all others appear twice.",
+  "The two values that appear once, in any order.",
+  "[1, 2, 1, 3, 2, 5] → [3, 5]; [−1, 0] → [−1, 0]."],
+"Sum of two integers without + (bits)": [
+  "Add two integers without using the + or − operators. XOR adds the bits without carrying (a ^ b), and AND shifted left gives the carries ((a & b) << 1). Repeat with the partial sum and the carries until there are no carries left. In languages with unbounded integers, mask to 32 bits to handle negative numbers.",
+  "Two integers a and b.",
+  "Their sum a + b.",
+  "a = 1, b = 2 → 3; a = 2, b = 3 → 5; a = −2, b = 3 → 1."],
+
+/* complexity classes */
+"What makes an algorithm quick, or efficient?": [
+  "Explain what it means for an algorithm to be efficient. Theory calls an algorithm efficient if its worst-case running time is bounded by a polynomial in the input size, such as O(n), O(n log n) or O(n³), because polynomial running times grow manageably while exponential ones (2ⁿ, n!) quickly become hopeless. Discuss why the line is drawn there and its limitations (e.g. n¹⁰⁰ is 'polynomial').",
+  "A description of an algorithm or of its running time.",
+  "Whether it counts as efficient (polynomial time), and why.",
+  "Merge sort, O(n log n) → efficient. Trying all subsets for subset sum, O(2ⁿ) → not efficient for large n."],
+"Can every problem be solved in polynomial time? Examples of NP-hard problems": [
+  "Discuss whether every computational problem has a polynomial-time algorithm. Some problems can't be solved by any algorithm at all (they are undecidable, like the halting problem). Others, the NP-hard problems, have no known polynomial-time algorithm, and finding one for any of them would give one for every problem in NP. Give standard examples and explain why they are believed to be hard.",
+  "A question about whether a problem class is solvable in polynomial time.",
+  "An explanation with examples.",
+  "Undecidable: the halting problem. NP-hard: travelling salesman, 0/1 knapsack (decision version), graph colouring, Hamiltonian cycle."],
+"Classify 2-SAT, 3-SAT, 2-clique and 3-clique": [
+  "Decide which complexity class each problem belongs to and justify it. 2-SAT and 3-SAT ask whether a boolean formula in conjunctive normal form, with 2 or 3 literals per clause, can be satisfied. 2-clique and 3-clique ask whether a graph contains a complete subgraph on 2 or 3 vertices (a fixed size, not part of the input).",
+  "The four problems: 2-SAT, 3-SAT, 2-clique, 3-clique.",
+  "The class of each (P, or NP-complete) with a short justification.",
+  "2-SAT → P (implication graph + SCCs); 3-SAT → NP-complete; 2-clique → P (any edge); 3-clique → P (check all triples, O(n³))."],
+"The remaining class-membership questions": [
+  "The rest of the chapter's questions on complexity classes. For each problem or statement, decide whether the problem is in P, in NP, NP-complete or NP-hard, and reason about polynomial-time reductions: if A reduces to B and A is NP-hard, then B is NP-hard too; if B is in P, then A is in P.",
+  "A problem or a statement about complexity classes and reductions.",
+  "The correct class, or whether the statement is true, with justification.",
+  "'If an NP-complete problem is solvable in O(n²), then P = NP' → true. 'Every problem in NP is NP-complete' → false (unless P = NP)."],
+};
 
 /* ---------------- quizzes ---------------- */
 const QUIZ = {
@@ -5126,6 +6820,14 @@ function buildHead(m) {
       h('span', { class: 'chip' }, 'Interview weight ', h('span', { class: 'stars', title: m.weight + ' of 5' }, stars)),
       h('span', { class: 'chip' }, 'Problems done ', h('b', { 'data-pcount': m.id }, ''))));
 }
+function buildStmt(title) {
+  const s = STMT[title];
+  if (!s) return null;
+  const row = (k, v) => [h('dt', null, k), h('dd', null, v)];
+  // the problem row is a <label>; cancel the click so reading or selecting the statement doesn't tick "solved"
+  return h('div', { class: 'pn', onclick: e => e.preventDefault() }, h('p', null, s[0]),
+    h('dl', { class: 'io' }, row('Input', s[1]), row('Output', s[2]), row('Example', s[3])));
+}
 function buildProblems(m, el) {
   const list = (PROBLEMS[m.id] || []).slice().sort((a, b) => a[0] - b[0]);
   const done = store.get('done', {});
@@ -5137,7 +6839,7 @@ function buildProblems(m, el) {
     const cb = h('input', { type: 'checkbox', 'aria-label': 'Mark solved: ' + p[2] });
     cb.checked = !!done[key];
     const row = h('label', { class: 'prob' + (cb.checked ? ' done' : ''), 'data-tier': p[0] }, cb,
-      h('div', null, h('div', { class: 'pt' }, p[2]), h('div', { class: 'pm' }, h('span', null, p[1]), p[3] ? h('span', null, 'LeetCode twin: ', h('code', null, p[3])) : null)),
+      h('div', null, h('div', { class: 'pt' }, p[2]), h('div', { class: 'pm' }, h('span', null, p[1]), p[3] ? h('span', null, 'LeetCode twin: ', h('code', null, p[3])) : null), buildStmt(p[2])),
       h('span', { class: 'tier t' + p[0] }, TIERS[p[0]]));
     cb.addEventListener('change', () => {
       const d = store.get('done', {});
