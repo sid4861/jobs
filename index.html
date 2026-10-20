@@ -70,7 +70,17 @@ td.chk input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
 .notes{margin-top:20px;color:var(--muted);font-size:13px;max-width:78ch;display:grid;gap:6px}
 .notes p{margin:0}
 @media (max-width:640px){.count{margin-left:0;width:100%}}
+.topnav{border-bottom:1px solid var(--line);background:var(--surface)}
+.topnav .wrap{display:flex;gap:20px;align-items:center;padding-block:10px}
+.topnav a{color:var(--muted);text-decoration:none;font-weight:500;font-size:13.5px}
+.topnav a:hover{color:var(--fg)}
+.topnav a[aria-current="page"]{color:var(--fg)}
 </style>
+
+<nav class="topnav" aria-label="Site"><div class="wrap">
+  <a href="index.html" aria-current="page">Job tracker</a>
+  <a href="dsa-interview-mastery.html">Data structures prep</a>
+</div></nav>
 
 <header class="wrap">
   <div class="eyebrow">Job hunt · India GCCs &amp; offices</div>
