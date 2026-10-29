@@ -6,7 +6,7 @@
 <style>body{margin:0;font:14px/1.5 system-ui,sans-serif}[hidden]{display:none!important}img{max-width:100%}</style>
 </head>
 <body>
-<title>Fortune 500 India Careers</title>
+<title>Companies Hiring in India</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -34,7 +34,7 @@ h1{font-family:var(--display);font-size:clamp(28px,4.5vw,42px);line-height:1.05;
 .lede{color:var(--muted);max-width:68ch;margin:0}
 .stats{display:flex;flex-wrap:wrap;gap:8px 20px;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
 .stats b{color:var(--fg);font-weight:500}
-.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{position:sticky;top:var(--sitenav-h,48px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
 .bar .wrap{padding-block:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 input[type=search],select{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0}
 input[type=search]{flex:1 1 220px}
@@ -70,26 +70,16 @@ td.chk input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
 .notes{margin-top:20px;color:var(--muted);font-size:13px;max-width:78ch;display:grid;gap:6px}
 .notes p{margin:0}
 @media (max-width:640px){.count{margin-left:0;width:100%}}
-.topnav{border-bottom:1px solid var(--line);background:var(--surface)}
-.topnav .wrap{display:flex;gap:20px;align-items:center;padding-block:10px}
-.topnav a{color:var(--muted);text-decoration:none;font-weight:500;font-size:13.5px}
-.topnav a:hover{color:var(--fg)}
-.topnav a[aria-current="page"]{color:var(--fg)}
 </style>
 
-<nav class="topnav" aria-label="Site"><div class="wrap">
-  <a href="index.html" aria-current="page">Job tracker</a>
-  <a href="dsa-interview-mastery.html">Data structures prep</a>
-</div></nav>
+<nav id="sitenav" aria-label="Site"></nav>
+<script src="site-nav.js"></script>
 
 <header class="wrap">
   <div class="eyebrow">Job hunt · India GCCs &amp; offices</div>
   <h1 id="title">Fortune 1000 companies hiring in India</h1>
   <p class="lede" id="lede"></p>
-  <div class="tabs" role="tablist" aria-label="Company lists">
-    <button type="button" role="tab" id="tab-us" data-tab="us" aria-selected="true">US Fortune 1000</button>
-    <button type="button" role="tab" id="tab-eu" data-tab="europe" aria-selected="false">European companies</button>
-  </div>
+  <div class="tabs" role="tablist" aria-label="Company lists"></div>
   <div class="stats" id="stats"></div>
 </header>
 
@@ -98,21 +88,21 @@ td.chk input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
   <select id="sector" aria-label="Sector"><option value="">All sectors</option></select>
   <select id="city" aria-label="City">
     <option value="">All cities</option>
-    <option value="NCR">Delhi NCR (Gurugram/Noida/Delhi)</option>
+    <option value="NCR">Delhi NCR (Gurugram/Noida/Delhi/Faridabad)</option>
     <option value="Bengaluru">Bengaluru</option>
     <option value="Hyderabad">Hyderabad</option>
     <option value="Pune">Pune</option>
     <option value="Chennai">Chennai</option>
     <option value="Mumbai">Mumbai</option>
+    <option value="Kolkata">Kolkata</option>
+    <option value="Ahmedabad">Ahmedabad</option>
+    <option value="Coimbatore">Coimbatore</option>
+    <option value="Jaipur">Jaipur</option>
+    <option value="Thiruvananthapuram">Thiruvananthapuram</option>
     <option value="Remote">Remote</option>
   </select>
   <select id="country" aria-label="Country" hidden><option value="">All countries</option></select>
-  <select id="kind" aria-label="Company type" hidden>
-    <option value="">All company types</option>
-    <option value="Large company">Large companies</option>
-    <option value="Scaleup">Scaleups &amp; mid-size</option>
-    <option value="Remote-first">Remote-first</option>
-  </select>
+  <select id="kind" aria-label="Company type" hidden></select>
   <select id="tier" aria-label="Fortune list">
     <option value="">Fortune 500 + Next 500</option>
     <option value="500">Fortune 500 only</option>
@@ -131,13 +121,20 @@ td.chk input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
     </table>
     <div class="empty" id="empty" hidden>No companies match these filters.</div>
   </div>
-  <div class="notes" id="notes-eu" hidden>
+  <div class="notes" id="notes-eu" data-for="europe" hidden>
     <p><b>Scope.</b> European-headquartered companies with a GCC, tech centre or office in India, plus European scaleups with India teams and remote-first companies that hire in India. Picked from GCC directories, company announcements and news. Companies that are European-incorporated but run from the US (for example Accenture, Aon or Medtronic) are left out or sit on the US tab. "Remote" means the company hires India-based people into a distributed team, usually through an employer-of-record, so check each role's location rules.</p>
     <p><b>About the links.</b> "India filter" links open an India page or India-filtered search. "Filter to India" links open the main careers site. adidas cut part of its Gurugram tech team in late 2026, so check current openings there.</p>
   </div>
-  <div class="notes" id="notes-us">
+  <div class="notes" id="notes-us" data-for="us">
     <p><b>About the links.</b> "India filter" links open the careers search already filtered to India. "Filter to India" links open the company's main careers search, where you pick India as the location. Career sites change their URLs often, so if a link breaks, search the company name plus "careers India".</p>
     <p><b>Scope.</b> Built by going through the 2026 Fortune 500 list and checking which companies have a GCC, tech centre or office in India, using GCC directories, company announcements and news. Most of the remaining Fortune 500 companies (utilities, homebuilders, regional banks, refiners, US-only retailers) showed no India presence in that check. Companies tagged "F501–1000" come from the next 500 (US companies with roughly $2.5B–$7.5B in revenue); Fortune's full 501–1000 ranking isn't published for free, so these were picked by revenue band from GCC directories and news. Four entries tagged "Not on list" are private or incorporated abroad but still hire in India. Locations show each company's main India hubs and may not be complete.</p>
+  </div>
+  <div class="notes" data-for="usx world india" hidden>
+    <p><b>Scope.</b> Added in October 2026 from GCC directories (Flexiple's India GCC directory, GCC Journal, GCC Index, Kas Business Consulting), news of centres opened in 2025–2026, and company careers pages. "New" marks centres opened or announced since 2025. Locations show each company's main India hubs and may not be complete. Startups change quickly, so check each job post for the actual location.</p>
+    <p><b>About the links.</b> Where a company's own careers site was confirmed, the link goes there. Otherwise "LinkedIn jobs" opens a LinkedIn job search for that company with the location set to India.</p>
+  </div>
+  <div class="notes" data-for="us europe" hidden>
+    <p><b>LinkedIn links.</b> Rows added in October 2026 whose careers site couldn't be confirmed link to a LinkedIn job search for the company in India.</p>
   </div>
 </main>
 
@@ -200,12 +197,12 @@ const DATA = [
 ["Bank of America","Banking","BofA Continuum India","Hyderabad, Chennai, Mumbai, Gurugram","https://careers.bankofamerica.com/en-us/job-search?ref=search&search=getAllJobs&rows=10&start=0&country=IN",1,0],
 ["Citigroup","Banking","Citi India","Pune, Chennai, Mumbai, Gurugram, Bengaluru","https://jobs.citi.com/location/india-jobs/287/1269750/2",1,0],
 ["Wells Fargo","Banking","Wells Fargo India","Hyderabad, Bengaluru, Chennai","https://www.wellsfargojobs.com/en/jobs/?country=India",1,0],
-["American Express","Payments","American Express India","Gurugram, Bengaluru","https://aexp.eightfold.ai/careers?location=India",1,0],
+["American Express","Payments","American Express India","Gurugram, Bengaluru","",0,0],
 ["Visa","Payments","Visa India","Bengaluru","https://corporate.visa.com/en/jobs/?cities=Bangalore",1,0],
 ["Mastercard","Payments","Mastercard India","Pune, Gurugram, Vadodara","https://careers.mastercard.com/us/en/search-results?qcountry=India",1,0],
 ["Charles Schwab","Brokerage","Schwab India","Hyderabad","https://www.schwabjobs.com/",0,1],
 ["State Street","Asset services","State Street India","Bengaluru, Hyderabad, Mumbai","https://careers.statestreet.com/",0,0],
-["BNY","Asset services","BNY India","Pune, Chennai","https://jobs.bnymellon.com/",0,0],
+["BNY","Asset services","BNY India","Pune, Chennai","",0,0],
 ["Northern Trust","Asset services","Northern Trust India","Pune, Bengaluru","https://careers.northerntrust.com/",0,0],
 ["Ameriprise Financial","Wealth","Ameriprise India","Gurugram, Noida, Hyderabad","https://www.ameriprise.com/careers",0,0],
 ["LPL Financial","Wealth","LPL India","Hyderabad","https://www.lpl.com/careers.html",0,1],
@@ -281,7 +278,7 @@ const DATA = [
 ["Archer Daniels Midland","Agri / Food","ADM India Hub","Bengaluru","https://www.adm.com/en-us/careers/",0,0],
 ["Whirlpool","Consumer goods","Whirlpool India","Pune, Gurugram","https://www.whirlpoolcareers.com/",0,0],
 ["Walt Disney","Media","Disney India","Bengaluru, Mumbai","https://jobs.disneycareers.com/",0,0],
-["Ferguson Enterprises","Distribution","Ferguson GCC","Bengaluru","https://careers.ferguson.com/",0,1],
+["Ferguson Enterprises","Distribution","Ferguson GCC","Bengaluru","",0,1],
 // Added: finance & insurance
 ["BlackRock","Asset management","BlackRock India","Gurugram, Mumbai","https://careers.blackrock.com/",0,0],
 ["Franklin Resources","Asset management","Franklin Templeton India","Hyderabad, Mumbai","https://www.franklintempleton.com/careers",0,0],
@@ -313,7 +310,7 @@ const DATA = [
 ["Regeneron","Biotech","Regeneron India","Hyderabad","https://careers.regeneron.com/",0,0],
 // Added: industrial, auto, energy
 ["GE Vernova","Energy","GE Vernova India","Bengaluru, Hyderabad, Chennai","https://careers.gevernova.com/",0,0],
-["Otis Worldwide","Industrial","Otis India","Hyderabad, Bengaluru","https://jobs.otis.com/",0,0],
+["Otis Worldwide","Industrial","Otis India","Hyderabad, Bengaluru","",0,0],
 ["Parker Hannifin","Industrial","Parker India","Pune, Chennai","https://www.parker.com/us/en/careers.html",0,0],
 ["Dover","Industrial","Dover India","Bengaluru, Pune","https://www.dovercorporation.com/careers",0,0],
 ["Rockwell Automation","Industrial","Rockwell Automation India","Pune, Bengaluru, Noida","https://www.rockwellautomation.com/en-us/company/careers.html",0,0],
@@ -322,7 +319,7 @@ const DATA = [
 ["Textron","Aerospace","Textron India","Bengaluru","https://www.textron.com/careers",0,0],
 ["Xylem","Industrial","Xylem India","Vadodara, Bengaluru","https://www.xylem.com/en-us/careers/",0,0],
 ["Ecolab","Industrial","Ecolab India","Pune, Bengaluru","https://jobs.ecolab.com/",0,0],
-["Avery Dennison","Industrial","Avery Dennison India","Gurugram, Bengaluru","https://careers.averydennison.com/",0,0],
+["Avery Dennison","Industrial","Avery Dennison India","Gurugram, Bengaluru","",0,0],
 ["DuPont","Chemicals","DuPont Knowledge Centre","Hyderabad","https://www.dupont.com/careers.html",0,0],
 ["Dow","Chemicals","Dow India","Mumbai, Pune","https://corporate.dow.com/en-us/careers.html",0,0],
 ["Corteva","Agri","Corteva India","Hyderabad","https://careers.corteva.com/",0,0],
@@ -335,8 +332,8 @@ const DATA = [
 ["Halliburton","Energy","Halliburton India","Pune, Bengaluru","https://careers.halliburton.com/",0,0],
 // Added: services, real estate, travel
 ["CBRE","Real estate","CBRE India","Gurugram, Hyderabad, Bengaluru","https://careers.cbre.com/",0,0],
-["JLL","Real estate","JLL India","Gurugram, Bengaluru, Mumbai","https://careers.jll.com/",0,0],
-["Omnicom","Advertising","Omnicom Global Solutions","Chennai, Bengaluru","https://www.omnicomgroup.com/careers/",0,0],
+["JLL","Real estate","JLL India","Gurugram, Bengaluru, Mumbai","",0,0],
+["Omnicom","Advertising","Omnicom Global Solutions","Chennai, Bengaluru","",0,0],
 ["XPO","Logistics","XPO India","Pune","https://jobs.xpo.com/",0,0],
 ["Delta Air Lines","Airline","Delta Tech Hub India","Bengaluru","https://www.delta.com/us/en/careers/overview",0,0],
 ["American Airlines","Airline","American Airlines India","Hyderabad","https://jobs.aa.com/",0,0],
@@ -375,11 +372,11 @@ const DATA = [
 ["Williams-Sonoma","Retail","Williams-Sonoma India","India (sourcing office)","https://careers.williams-sonomainc.com/",0,0],
 ["Advance Auto Parts","Retail","Advance Auto Parts India","Hyderabad","https://jobs.advanceautoparts.com/",0,0],
 ["Zoetis","Pharma","Zoetis India Capability Center","Hyderabad","https://careers.zoetis.com/",0,0],
-["Insight Enterprises","IT services","Insight India","Noida","https://www.insight.com/en_US/about/careers.html",0,0],
+["Insight Enterprises","IT services","Insight India","Noida","",0,0],
 ["StoneX","Financial services","StoneX India","Bengaluru","https://www.stonex.com/en/careers/",0,0],
 ["World Kinect","Energy","World Kinect India","Bengaluru","https://world-kinect.com/careers",0,0],
 ["Ingram Micro","IT distribution","Ingram Micro India","Mumbai, Chennai, Bengaluru","https://corp.ingrammicro.com/en-us/careers",0,0],
-["Arrow Electronics","IT distribution","Arrow India","Bengaluru","https://jobs.arrow.com/",0,0],
+["Arrow Electronics","IT distribution","Arrow India","Bengaluru","",0,0],
 ["Avnet","IT distribution","Avnet India","Bengaluru","https://www.avnet.com/wps/portal/us/about-avnet/careers/",0,0],
 ["KKR","Asset management","KKR India","Mumbai, Gurugram","https://www.kkr.com/careers",0,0],
 ["Blackstone","Asset management","Blackstone India","Mumbai, Gurugram","https://www.blackstone.com/careers/",0,0],
@@ -388,10 +385,10 @@ const DATA = [
 ["ManpowerGroup","Staffing","ManpowerGroup India","Gurugram, Bengaluru","https://www.manpowergroup.com/careers",0,0],
 ["AECOM","Engineering","AECOM India","Gurugram, Bengaluru","https://aecom.jobs/",0,0],
 ["Fluor","Engineering","Fluor India","Gurugram","https://careers.fluor.com/",0,0],
-["Stanley Black & Decker","Industrial","SBD India engineering","Bengaluru","https://careers.stanleyblackanddecker.com/",0,0],
-["Kenvue","Consumer goods","Kenvue India","Mumbai","https://careers.kenvue.com/",0,0],
+["Stanley Black & Decker","Industrial","SBD India engineering","Bengaluru","",0,0],
+["Kenvue","Consumer goods","Kenvue India","Mumbai","",0,0],
 ["EchoStar","Telecom","Hughes Systique / Hughes India","Gurugram","https://www.hughes.in/",0,0],
-["Air Products","Chemicals","Air Products India","Pune","https://careers.airproducts.com/",0,0],
+["Air Products","Chemicals","Air Products India","Pune","",0,0],
 ["Jacobs Solutions","Engineering","Jacobs India","Mumbai, Bengaluru","https://careers.jacobs.com/",0,0],
 ["Expeditors","Logistics","Expeditors India","Chennai, Gurugram, Mumbai","https://www.expeditors.com/careers",0,0],
 ["IFF","Chemicals","IFF India","Chennai, Hyderabad","https://www.iff.com/careers",0,0],
@@ -402,8 +399,8 @@ const DATA = [
 ["Equinix","Tech / Data centres","Equinix India","Mumbai","https://careers.equinix.com/",0,0],
 ["PVH","Retail / Apparel","PVH India","Bengaluru","https://careers.pvh.com/",0,0],
 ["NOV","Energy","NOV India","Pune, Navi Mumbai","https://www.nov.com/careers",0,0],
-["Solventum","MedTech","Solventum India","Bengaluru","https://www.solventum.com/en-us/home/company/careers/",0,0],
-["Yum Brands","Restaurants","Yum India","Gurugram","https://careers.yum.com/",0,0],
+["Solventum","MedTech","Solventum India","Bengaluru","",0,0],
+["Yum Brands","Restaurants","Yum India","Gurugram","",0,0],
 ["Marvell Technology","Semiconductors","Marvell India","Bengaluru, Hyderabad, Pune","https://www.marvell.com/company/careers.html",0,0],
 ["KBR","Engineering","KBR India","Gurugram, Chennai","https://careers.kbr.com/",0,0],
 ["Sonoco","Packaging","Sonoco Performance Hub","Hyderabad","https://www.sonoco.com/careers",0,1],
@@ -433,18 +430,18 @@ const DATA = [
 ["Take-Two Interactive","Tech / Gaming","Rockstar India","Bengaluru","https://www.take2games.com/careers/",0,0],
 ["Ciena","Tech","Ciena India","Gurugram, Bengaluru","https://careers.ciena.com/",0,0],
 ["Zebra Technologies","Tech","Zebra India","Bengaluru, Pune","https://www.zebra.com/us/en/about-zebra/careers.html",0,0],
-["Trimble","Tech","Trimble India","Chennai, Noida, Pune","https://www.trimble.com/en/our-company/careers",0,0],
+["Trimble","Tech","Trimble India","Chennai, Noida, Pune","",0,0],
 ["Keysight Technologies","Tech","Keysight India","Gurugram, Bengaluru","https://jobs.keysight.com/",0,0],
 // Fortune 501–1000: IT services, fintech, data
 ["EPAM Systems","IT services","EPAM India","Hyderabad, Bengaluru, Pune, Chennai, Gurugram","https://www.epam.com/careers",0,0],
 ["Conduent","IT services","Conduent India","Noida","https://careers.conduent.com/",0,0],
 ["Rackspace Technology","IT services","Rackspace India","Gurugram, Hyderabad","https://www.rackspace.com/careers",0,0],
-["Sabre","Tech / Travel","Sabre India","Bengaluru","https://www.sabre.com/about/careers/",0,0],
+["Sabre","Tech / Travel","Sabre India","Bengaluru","",0,0],
 ["Western Union","Fintech","Western Union India","Pune, Hyderabad","https://careers.westernunion.com/",0,0],
-["Euronet Worldwide","Fintech","Euronet India","Mumbai","https://www.euronetworldwide.com/careers/",0,0],
+["Euronet Worldwide","Fintech","Euronet India","Mumbai","",0,0],
 ["WEX","Fintech","WEX India technology centre","Bengaluru","https://careers.wexinc.com/",0,1],
-["Broadridge","Fintech","Broadridge India","Hyderabad, Bengaluru","https://careers.broadridge.com/",0,0],
-["SS&C Technologies","Fintech","SS&C India","Hyderabad, Mumbai, Chennai","https://www.ssctech.com/careers",0,0],
+["Broadridge","Fintech","Broadridge India","Hyderabad, Bengaluru","",0,0],
+["SS&C Technologies","Fintech","SS&C India","Hyderabad, Mumbai, Chennai","",0,0],
 ["TransUnion","Financial data","TransUnion India","Chennai, Pune, Hyderabad, Bengaluru","https://www.transunion.com/careers",0,0],
 ["Equifax","Financial data","Equifax India GCC","Pune","https://careers.equifax.com/",0,0],
 ["Verisk","Financial data","Verisk India","Hyderabad","https://www.verisk.com/company/careers/",0,0],
@@ -461,7 +458,7 @@ const DATA = [
 ["Korn Ferry","Consulting","Korn Ferry India","Gurugram, Mumbai","https://www.kornferry.com/careers",0,0],
 // Fortune 501–1000: healthcare
 ["Agilent Technologies","Life sciences","Agilent India","Bengaluru, Hyderabad","https://careers.agilent.com/",0,0],
-["Waters","Life sciences","Waters India GCC","Bengaluru","https://careers.waters.com/",0,0],
+["Waters","Life sciences","Waters India GCC","Bengaluru","",0,0],
 ["Illumina","Life sciences","Illumina India","Bengaluru","https://www.illumina.com/company/careers.html",0,0],
 ["Elanco","Pharma","Elanco India","Bengaluru","https://www.elanco.com/en-us/careers",0,0],
 ["Organon","Pharma","Organon India","Mumbai","https://www.organon.com/careers/",0,0],
@@ -470,8 +467,8 @@ const DATA = [
 ["Clean Harbors","Industrial services","Clean Harbors India","Hyderabad","https://careers.cleanharbors.com/",0,0],
 // Fortune 501–1000: industrial, auto, consumer
 ["Fortive","Industrial","Fortive India","Bengaluru","https://careers.fortive.com/",0,0],
-["Vontier","Industrial","Vontier India capability centre","Bengaluru","https://www.vontier.com/careers/",0,0],
-["Hubbell","Industrial","Hubbell India","Chennai","https://www.hubbell.com/hubbell/en/careers",0,0],
+["Vontier","Industrial","Vontier India capability centre","Bengaluru","",0,0],
+["Hubbell","Industrial","Hubbell India","Chennai","",0,0],
 ["Regal Rexnord","Industrial","Regal Rexnord global technology centre","Hyderabad, Pune","https://www.regalrexnord.com/careers",0,0],
 ["Woodward","Aerospace","Woodward India","Bengaluru","https://www.woodward.com/careers/",0,0],
 ["Moog","Aerospace","Moog India","Bengaluru","https://www.moog.com/careers.html",0,0],
@@ -483,14 +480,27 @@ const DATA = [
 ["Visteon","Auto","Visteon India","Chennai, Bengaluru, Pune","https://www.visteon.com/careers/",0,0],
 ["Warner Music Group","Media","Warner Music India","Mumbai","https://www.wmg.com/careers",0,0],
 ["Hyatt Hotels","Hospitality","Hyatt India","Gurugram","https://careers.hyatt.com/",0,0],
-["Church & Dwight","Consumer goods","Church & Dwight India","Mumbai","https://churchdwight.com/careers",0,0]
+["Church & Dwight","Consumer goods","Church & Dwight India","Mumbai","https://churchdwight.com/careers",0,0],
+// Added in the Oct 2026 sweep of GCC directories
+["LKQ","Auto parts","LKQ India GCC","Bengaluru","",0,0],
+["Corning","Industrial / Materials","Corning Technology Center India","Gurugram, Pune","https://www.corning.com/worldwide/en/careers.html",0,0],
+["Fastenal","Industrial distribution","Fastenal India","Bengaluru","",0,0],
+["Southwest Airlines","Airline","Southwest Airlines India GCC","Hyderabad","https://careers.southwestair.com/",0,1],
+["SLB","Energy / Tech","SLB India Technology Center","Pune, Gurugram, Coimbatore","https://careers.slb.com/",0,0],
+["Lennox","Industrial / HVAC","Lennox India Technology Centre","Chennai","",0,0],
+["CME Group","Financial exchanges","CME Group India","Bengaluru","https://www.cmegroup.com/careers.html",0,0],
+["Invesco","Asset management","Invesco India GCC","Hyderabad","https://careers.invesco.com/",0,0],
+["GlobalFoundries","Semiconductors","GlobalFoundries India","Bengaluru","https://gf.com/careers/",0,0],
+["Levi Strauss","Retail / Apparel","Levi Strauss Global Business Services","Bengaluru","https://www.levistrauss.com/work-with-us/",0,0],
+["Mr. Cooper","Mortgage / Fintech","Mr. Cooper India","Chennai","",0,0]
 ];
 // Fortune 501–1000 companies (revenue roughly $2.5B–$7.5B)
 const F1000 = new Set(["Gartner","Synopsys","Microchip Technology","onsemi","Abercrombie & Fitch",
 "Autodesk","Cadence Design Systems","PTC","Akamai","F5","NetApp","Gen Digital","Fortinet","CrowdStrike","Snowflake","Okta","Zscaler","MongoDB","Atlassian","Toast","Pure Storage","Nutanix","Twilio","Coinbase","Take-Two Interactive","Ciena","Zebra Technologies","Trimble","Keysight Technologies",
 "EPAM Systems","Conduent","Rackspace Technology","Sabre","Western Union","Euronet Worldwide","WEX","Broadridge","SS&C Technologies","TransUnion","Equifax","Verisk","MSCI","NielsenIQ","First American","NCR Voyix","NCR Atleos","Diebold Nixdorf","Light & Wonder","Carlyle","Ares Management","TPG","Korn Ferry",
 "Agilent Technologies","Waters","Illumina","Elanco","Organon","Mettler-Toledo","Evolent Health","Clean Harbors",
-"Fortive","Vontier","Hubbell","Regal Rexnord","Woodward","Moog","Lincoln Electric","Flowserve","Nordson","Timken","A.O. Smith","Visteon","Warner Music Group","Hyatt Hotels","Church & Dwight"]);
+"Fortive","Vontier","Hubbell","Regal Rexnord","Woodward","Moog","Lincoln Electric","Flowserve","Nordson","Timken","A.O. Smith","Visteon","Warner Music Group","Hyatt Hotels","Church & Dwight",
+"Lennox","CME Group","Invesco","GlobalFoundries","Levi Strauss","Mr. Cooper"]);
 // On this page but on neither list (private, foreign-incorporated or excluded), kept because they hire in India
 const NOT_LISTED = new Set(["Walgreens Boots Alliance","Electronic Arts","T-Mobile US","Chubb"]);
 const tierOf = name => NOT_LISTED.has(name) ? "none" : F1000.has(name) ? "1000" : "500";
@@ -506,8 +516,8 @@ const EU = [
 ["Bosch","Industrial / Tech","Bosch Global Software Technologies","Bengaluru, Coimbatore, Hyderabad, Pune","https://www.bosch.in/careers/",1,0,"Germany",L],
 ["Mercedes-Benz","Auto","Mercedes-Benz R&D India","Bengaluru, Pune","https://group.mercedes-benz.com/careers/",0,0,"Germany",L],
 ["BMW Group","Auto","BMW TechWorks India","Chennai, Pune, Bengaluru","https://www.bmwgroup.jobs/",0,0,"Germany",L],
-["Volkswagen Group","Auto","VW Group Technology Solutions India","Pune","https://www.volkswagen-group.com/en/careers",0,0,"Germany",L],
-["Daimler Truck","Auto","Daimler Truck Innovation Center India","Bengaluru, Chennai","https://www.daimlertruck.com/en/careers",0,0,"Germany",L],
+["Volkswagen Group","Auto","VW Group Technology Solutions India","Pune","",0,0,"Germany",L],
+["Daimler Truck","Auto","Daimler Truck Innovation Center India","Bengaluru, Chennai","",0,0,"Germany",L],
 ["Continental","Auto","Continental Technical Center India","Bengaluru","https://jobs.continental.com/",0,0,"Germany",L],
 ["ZF","Auto","ZF India Technology Centre","Hyderabad, Chennai, Pune","https://jobs.zf.com/",0,0,"Germany",L],
 ["Schaeffler","Auto","Schaeffler India","Pune","https://www.schaeffler.com/en/careers/",0,0,"Germany",L],
@@ -525,7 +535,7 @@ const EU = [
 ["Henkel","Consumer goods","Henkel India","Mumbai, Bengaluru","https://www.henkel.com/careers",0,0,"Germany",L],
 ["adidas","Retail / Apparel","adidas tech hub","Gurugram","https://careers.adidas-group.com/",0,0,"Germany",L],
 ["PUMA","Retail / Apparel","PUMA TechHub GCC","Pune","https://about.puma.com/en/careers",0,1,"Germany",L],
-["Carl Zeiss","MedTech / Optics","Zeiss India","Bengaluru","https://www.zeiss.com/corporate/en/careers.html",0,0,"Germany",L],
+["Carl Zeiss","MedTech / Optics","Zeiss India","Bengaluru","",0,0,"Germany",L],
 ["Hapag-Lloyd","Logistics","Hapag-Lloyd Technology Center","Chennai","https://www.hapag-lloyd.com/en/careers.html",0,0,"Germany",L],
 ["Freudenberg","Industrial","Freudenberg India","Bengaluru","https://www.freudenberg.com/careers/",0,0,"Germany",L],
 ["Celonis","Tech","Celonis global innovation hub","Bengaluru","https://careers.celonis.com/join-us/offices/bangalore",1,0,"Germany",S],
@@ -543,7 +553,7 @@ const EU = [
 ["Schneider Electric","Industrial","Schneider Electric India","Bengaluru, Gurugram","https://www.se.com/in/en/about-us/careers/",1,0,"France",L],
 ["Saint-Gobain","Industrial","Saint-Gobain India","Chennai, Mumbai","https://www.saint-gobain.com/en/careers",0,0,"France",L],
 ["Renault Group","Auto","Renault Nissan Technology & Business Centre","Chennai","https://www.renaultgroup.com/en/careers/",0,0,"France",L],
-["Michelin","Auto","Michelin India","Chennai","https://careers.michelin.com/",0,0,"France",L],
+["Michelin","Auto","Michelin India","Chennai","",0,0,"France",L],
 ["Valeo","Auto","Valeo India","Chennai","https://www.valeo.com/en/careers/",0,0,"France",L],
 ["Alstom","Rail","Alstom India","Bengaluru, Hyderabad","https://jobsearch.alstom.com/",0,0,"France",L],
 ["Dassault Systèmes","Tech","Dassault Systèmes India","Pune, Bengaluru","https://www.3ds.com/careers",0,0,"France",L],
@@ -580,7 +590,7 @@ const EU = [
 ["Arm","Semiconductors","Arm India","Bengaluru, Noida","https://careers.arm.com/",0,0,"United Kingdom",L],
 ["WPP","Advertising","WPP India","Gurugram, Mumbai","https://www.wpp.com/careers",0,0,"United Kingdom",L],
 ["Kantar","Research","Kantar India","Bengaluru, Mumbai, Gurugram","https://www.kantar.com/careers",0,0,"United Kingdom",L],
-["Entain","Gaming","Entain India","Hyderabad","https://www.entaingroup.com/careers/",0,0,"United Kingdom",L],
+["Entain","Gaming","Entain India","Hyderabad","",0,0,"United Kingdom",L],
 ["DAZN","Media / Tech","DAZN Hyderabad","Hyderabad","https://careers.dazn.com/",0,0,"United Kingdom",L],
 ["Finastra","Fintech","Finastra India","Bengaluru","https://www.finastra.com/careers",0,0,"United Kingdom",S],
 ["Revolut","Fintech","Revolut India","Bengaluru, Mumbai, Hyderabad","https://www.revolut.com/careers/",0,0,"United Kingdom",S],
@@ -589,7 +599,7 @@ const EU = [
 ["Tide","Fintech","Tide India","Hyderabad","https://www.tide.co/careers/",0,0,"United Kingdom",S],
 // Netherlands
 ["Philips","MedTech","Philips Innovation Campus","Bengaluru, Pune, Chennai","https://www.careers.philips.com/",0,0,"Netherlands",L],
-["NXP Semiconductors","Semiconductors","NXP India","Bengaluru, Noida, Hyderabad","https://www.nxp.com/careers",0,0,"Netherlands",L],
+["NXP Semiconductors","Semiconductors","NXP India","Bengaluru, Noida, Hyderabad","",0,0,"Netherlands",L],
 ["Stellantis","Auto","Stellantis global tech & business centres","Chennai, Hyderabad, Bengaluru","https://www.stellantis.com/en/careers",0,0,"Netherlands",L],
 ["Heineken","Consumer goods","Heineken GCC","Hyderabad","https://careers.theheinekencompany.com/",0,0,"Netherlands",L],
 ["Wolters Kluwer","Software / Data","Wolters Kluwer India","Pune","https://careers.wolterskluwer.com/",0,0,"Netherlands",L],
@@ -615,7 +625,7 @@ const EU = [
 ["SKF","Industrial","SKF India","Bengaluru, Pune","https://www.skf.com/group/careers",0,0,"Sweden",L],
 ["Sandvik","Industrial","Sandvik India","Pune","https://www.home.sandvik/en/careers/",0,0,"Sweden",L],
 ["Atlas Copco","Industrial","Atlas Copco GECIA","Pune, Bengaluru","https://www.atlascopcogroup.com/en/careers",0,0,"Sweden",L],
-["Alfa Laval","Industrial","Alfa Laval India","Pune","https://www.alfalaval.com/careers/",0,0,"Sweden",L],
+["Alfa Laval","Industrial","Alfa Laval India","Pune","",0,0,"Sweden",L],
 ["Tetra Pak","Packaging","Tetra Pak India","Pune, Chennai","https://www.tetrapak.com/careers",0,0,"Sweden",L],
 ["H&M Group","Retail","H&M Group tech hub","Bengaluru","https://career.hm.com/",0,0,"Sweden",L],
 ["IKEA","Retail","IKEA India","Hyderabad, Bengaluru, Mumbai","https://jobs.ikea.com/",0,0,"Sweden",L],
@@ -637,10 +647,446 @@ const EU = [
 ["Infobip","Tech","Infobip India","Gurugram, Mumbai, Bengaluru","https://www.infobip.com/careers",0,0,"Croatia",S],
 ["Toggl","Software","Fully remote team","Remote (India)","https://toggl.com/jobs/",0,0,"Estonia",R],
 ["Doist","Software","Fully remote team (Todoist, Twist)","Remote (India)","https://doist.com/careers",0,0,"Remote / EU",R],
-["Remote","HR tech","Fully remote team","Remote (India)","https://remote.com/careers",0,0,"Remote / EU",R]
+["Remote","HR tech","Fully remote team","Remote (India)","https://remote.com/careers",0,0,"Remote / EU",R],
+// Added in the Oct 2026 sweep: Big Four and professional services
+["Deloitte","Consulting / Audit","Deloitte USI & Deloitte India","Hyderabad, Bengaluru, Gurugram, Mumbai, Pune, Chennai, Kolkata","https://www.deloitte.com/in/en/careers.html",1,0,"United Kingdom",L],
+["EY","Consulting / Audit","EY Global Delivery Services & EY India","Bengaluru, Gurugram, Noida, Kolkata, Hyderabad, Chennai, Mumbai, Kochi","https://www.ey.com/en_in/careers",1,0,"United Kingdom",L],
+["PwC","Consulting / Audit","PwC Acceleration Centers & PwC India","Bengaluru, Kolkata, Gurugram, Mumbai, Hyderabad","https://www.pwc.in/careers.html",1,0,"United Kingdom",L],
+["KPMG","Consulting / Audit","KPMG Global Services & KPMG India","Bengaluru, Gurugram, Mumbai, Pune, Kochi, Hyderabad","https://kpmg.com/in/en/careers.html",1,0,"Netherlands",L],
+// UK & Ireland
+["Fidelity International","Asset management","Fidelity International India","Gurugram, Bengaluru","https://careers.fidelityinternational.com/",0,0,"United Kingdom",L],
+["Pearson","Education","Pearson India","Noida, Chennai","https://www.pearson.com/en-gb/careers.html",0,0,"United Kingdom",L],
+["AVEVA","Industrial software","AVEVA India","Hyderabad, Bengaluru","https://www.aveva.com/en/about/careers/",0,0,"United Kingdom",L],
+["Sophos","Cybersecurity","Sophos India","Ahmedabad, Bengaluru","https://www.sophos.com/en-us/careers",0,0,"United Kingdom",L],
+["dunnhumby","Retail analytics","dunnhumby India","Gurugram","https://www.dunnhumby.com/careers/",0,0,"United Kingdom",S],
+["IG Group","Fintech / Trading","IG Group India","Bengaluru","https://www.iggroup.com/careers",0,0,"United Kingdom",L],
+["SHL","HR tech","SHL India","Gurugram","",0,0,"United Kingdom",S],
+["Computacenter","IT services","Computacenter India","Bengaluru","",0,0,"United Kingdom",L],
+["Qualitest","QA services","Qualitest India","Bengaluru, Noida, Chennai","",0,0,"United Kingdom",S],
+["FNZ","Wealth tech","FNZ India","Gurugram","",0,0,"United Kingdom",S],
+["Civica","Public-sector software","Civica India","Vadodara","",0,0,"United Kingdom",S],
+["GlobalData","Data / Research","GlobalData India","Hyderabad","",0,0,"United Kingdom",L],
+["CNH","Agri machinery","CNH India technology centre","Gurugram, Pune","https://www.cnh.com/en-US/Careers",0,0,"United Kingdom",L],
+["TechnipFMC","Energy","TechnipFMC India","Hyderabad","https://careers.technipfmc.com/",0,0,"United Kingdom",L],
+["Canonical","Software (Ubuntu)","Fully remote team","Remote (India)","https://canonical.com/careers",0,0,"United Kingdom",R],
+["Flutter Entertainment","Gaming / Tech","Flutter India GCC","Hyderabad","https://www.flutter.com/careers/",0,0,"Ireland",L],
+["ION Group","Fintech","ION India","Gurugram, Mumbai","",0,0,"Ireland",L],
+["Cimpress","E-commerce","Cimpress India","Mumbai","",0,0,"Ireland",L],
+// France
+["Atos / Eviden","IT services","Atos India","Pune, Bengaluru, Mumbai, Chennai","https://atos.net/en/careers",0,0,"France",L],
+["Orange Business","Telecom / IT services","Orange Business India","Gurugram, Mumbai","",0,0,"France",L],
+["Worldline","Payments","Worldline India","Mumbai, Pune","https://worldline.com/en/home/top-navigation/careers.html",0,0,"France",L],
+["Epsilon","Ad tech","Epsilon India (Publicis Groupe)","Bengaluru","",0,0,"France",L],
+["Ipsos","Market research","Ipsos India","Mumbai, Gurugram","",0,0,"France",L],
+["CMA CGM","Logistics","CMA CGM Global Business Services","Mumbai, Chennai","",0,0,"France",L],
+["Forvia","Auto","Forvia India","Pune","",0,0,"France",L],
+// Germany & Austria
+["Nagarro","IT services","Nagarro India","Gurugram, Noida, Jaipur, Bengaluru, Pune, Chennai","https://www.nagarro.com/en/careers",0,0,"Germany",L],
+["Evonik","Chemicals","Evonik India","Thane","",0,0,"Germany",L],
+["Festo","Industrial","Festo India","Bengaluru","",0,0,"Germany",L],
+["METRO","Retail","METRO Global Solution Center","Pune","",0,0,"Germany",L],
+["MANN+HUMMEL","Auto","MANN+HUMMEL India","Bengaluru","",0,0,"Germany",L],
+["Nordex","Energy","Nordex India R&D centre","Chennai","",0,1,"Germany",L],
+["ArcelorMittal","Steel","ArcelorMittal Global Business & Technologies","Pune, Hyderabad","",0,1,"Luxembourg",L],
+// Netherlands & Belgium
+["Signify","Lighting / IoT","Signify Innovations India","Bengaluru, Noida","https://www.careers.signify.com/",0,0,"Netherlands",L],
+["TomTom","Maps / Tech","TomTom India","Pune","https://www.tomtom.com/careers/",0,0,"Netherlands",L],
+["HERE Technologies","Maps / Tech","HERE India","Mumbai, Bengaluru","https://careers.here.com/",0,0,"Netherlands",L],
+["Xebia","IT services","Xebia India","Gurugram, Jaipur, Bengaluru, Pune","https://xebia.com/careers/",0,0,"Netherlands",L],
+["PayU","Fintech","PayU India (Prosus)","Gurugram, Bengaluru, Mumbai","",0,0,"Netherlands",L],
+["Optiver","Trading","Optiver India","Mumbai","https://optiver.com/working-at-optiver/career-opportunities/",0,0,"Netherlands",S],
+// Switzerland
+["Hitachi Energy","Energy / Industrial","Hitachi Energy India & global tech centre","Bengaluru, Chennai, Vadodara","https://www.hitachienergy.com/careers",0,0,"Switzerland",L],
+["STMicroelectronics","Semiconductors","ST India","Greater Noida, Bengaluru","https://www.st.com/content/st_com/en/careers.html",0,0,"Switzerland",L],
+["Logitech","Electronics","Logitech India","Chennai","",0,0,"Switzerland",L],
+["Landis+Gyr","Energy tech","Landis+Gyr India","Noida","",0,0,"Switzerland",L],
+["Clariant","Chemicals","Clariant India","Navi Mumbai","",0,0,"Switzerland",L],
+["Kuehne+Nagel","Logistics","Kuehne+Nagel tech centre","Chennai","https://jobs.kuehne-nagel.com/",0,1,"Switzerland",L],
+// Nordics
+["Hexagon","Industrial software","Hexagon Capability Center India","Hyderabad","https://hexagon.com/company/careers",0,0,"Sweden",L],
+["Truecaller","Consumer tech","Truecaller India","Bengaluru, Gurugram","https://www.truecaller.com/careers",0,0,"Sweden",S],
+["Sinch","Communications tech","Sinch India","Noida, Mumbai","",0,0,"Sweden",L],
+["Saab","Aerospace / Defence","Saab India","Hyderabad","",0,0,"Sweden",L],
+["Danfoss","Industrial","Danfoss India","Chennai","https://www.danfoss.com/en/about-danfoss/careers/",0,0,"Denmark",L],
+["Novonesis","Biotech","Novonesis India R&D","Bengaluru","",0,0,"Denmark",L],
+["FLSmidth","Industrial","FLSmidth India","Chennai","",0,0,"Denmark",L],
+["Ramboll","Engineering","Ramboll India","Hyderabad, Gurugram","",0,0,"Denmark",L],
+["Aker Solutions","Energy","Aker Solutions India","Pune","",0,0,"Norway",L]
 ];
 
-const NCR = /Gurugram|Noida|Delhi/;
+// US companies not on the Fortune 1000 (private, mid-size, venture-backed), plus US-run firms incorporated abroad
+// [company, sector, India entity / centre, cities, careersUrl, urlIsIndiaFiltered, newSince2025, country, type]; an empty URL means a LinkedIn India job search
+const M="Mid-size & SaaS", C="Consulting & services";
+const USX = [
+// Financial services
+["Empower","Retirement / Financial services","Great West Global Business Services India (Empower GCC)","Bengaluru","https://jobs.empower.com/",0,0,"United States",L],
+["Fidelity Investments","Asset management","Fidelity Investments India (FMR)","Bengaluru, Chennai","https://jobs.fidelity.com/",0,0,"United States",L],
+["Vanguard","Asset management","Vanguard India GCC","Hyderabad","https://www.vanguardjobs.com/",0,1,"United States",L],
+["Bloomberg","Financial data / Media","Bloomberg India","Mumbai","https://www.bloomberg.com/company/careers/",0,0,"United States",L],
+["The D. E. Shaw Group","Investment firm","D. E. Shaw India","Hyderabad, Bengaluru, Gurugram","https://www.deshawindia.com/careers",1,0,"United States",L],
+["Arcesium","Fintech","Arcesium India","Hyderabad, Bengaluru","https://www.arcesium.com/careers",0,0,"United States",M],
+["Tower Research Capital","Trading / Fintech","Tower Research India","Gurugram","https://www.tower-research.com/open-positions",0,0,"United States",M],
+["WorldQuant","Quant investing","WorldQuant India","Mumbai, Gurugram, Bengaluru","",0,0,"United States",M],
+["AQR Capital","Asset management","AQR India","Bengaluru","https://careers.aqr.com/",0,0,"United States",M],
+["Morningstar","Financial data","Morningstar India","Mumbai, Navi Mumbai","https://careers.morningstar.com/",0,0,"United States",M],
+["FactSet","Financial data","FactSet India","Hyderabad","https://www.factset.com/careers",0,0,"United States",M],
+["Dun & Bradstreet","Financial data","Dun & Bradstreet India","Mumbai","",0,0,"United States",M],
+["Q2","Banking software","Q2 India","Bengaluru","",0,0,"United States",M],
+["Zinnia","Insurance tech","Zinnia India","Gurugram, Noida, Pune","",0,0,"United States",S],
+["AssetMark","Wealth tech","AssetMark Global Wealth","Hyderabad","",0,1,"United States",M],
+["The Standard","Insurance","The Standard India","Bengaluru","",0,0,"United States",L],
+// Consulting, IT and business services
+["Accenture","Consulting / IT services","Accenture India","Bengaluru, Hyderabad, Pune, Chennai, Mumbai, Gurugram, Noida, Kolkata","https://www.accenture.com/in-en/careers",1,0,"Ireland (US-run)",C],
+["McKinsey & Company","Consulting","McKinsey India & Knowledge Centre","Gurugram, Bengaluru, Mumbai, Chennai","https://www.mckinsey.com/careers",0,0,"United States",C],
+["Boston Consulting Group","Consulting","BCG India & capability centres","Gurugram, New Delhi, Mumbai, Bengaluru, Chennai","https://careers.bcg.com/",0,0,"United States",C],
+["Bain & Company","Consulting","Bain Capability Network","Gurugram, New Delhi, Mumbai, Bengaluru","https://www.bain.com/careers/",0,0,"United States",C],
+["Alvarez & Marsal","Consulting","A&M India","Gurugram, Mumbai, Bengaluru","",0,0,"United States",C],
+["ZS Associates","Consulting / Analytics","ZS India","Pune, Gurugram, Bengaluru","https://www.zs.com/careers",0,0,"United States",C],
+["Guidehouse","Consulting","Guidehouse India","Chennai, Bengaluru, Thiruvananthapuram","",0,0,"United States",C],
+["Huron","Consulting","Huron India","Bengaluru","",0,0,"United States",C],
+["RSM US","Accounting / Consulting","RSM US Delivery Center","Bengaluru, Hyderabad","https://rsmus.com/careers.html",0,0,"United States",C],
+["Genpact","Business & IT services","Genpact India","Gurugram, Noida, Bengaluru, Hyderabad, Kolkata, Jaipur","https://www.genpact.com/careers",0,0,"United States",C],
+["EXL","Analytics & operations","EXL India","Noida, Gurugram, Pune, Bengaluru","https://www.exlservice.com/careers",0,0,"United States",C],
+["GlobalLogic","Digital engineering","GlobalLogic India (Hitachi)","Noida, Gurugram, Bengaluru, Hyderabad, Chennai, Pune","https://www.globallogic.com/careers/",0,0,"United States",C],
+["Thoughtworks","Software consultancy","Thoughtworks India","Bengaluru, Pune, Chennai, Gurugram, Hyderabad, Coimbatore","https://www.thoughtworks.com/careers",0,0,"United States",C],
+["Virtusa","IT services","Virtusa India","Hyderabad, Chennai, Bengaluru, Pune","https://www.virtusa.com/careers",0,0,"United States",C],
+["Synechron","IT services","Synechron India","Pune, Bengaluru, Hyderabad, Chennai","https://www.synechron.com/careers",0,0,"United States",C],
+["Infogain","IT services","Infogain India","Noida, Gurugram, Bengaluru, Pune, Mumbai","https://www.infogain.com/careers/",0,0,"United States",C],
+["Sutherland","Business & IT services","Sutherland India","Chennai, Hyderabad, Bengaluru","https://www.sutherlandglobal.com/careers",0,0,"United States",C],
+["Tavant","IT services / Fintech","Tavant India","Bengaluru, Noida, Hyderabad","https://www.tavant.com/careers",0,0,"United States",C],
+["Ness Digital Engineering","Digital engineering","Ness India","Bengaluru, Pune, Hyderabad","",0,0,"United States",C],
+["Tiger Analytics","Analytics","Tiger Analytics India","Chennai, Bengaluru, Hyderabad","https://www.tigeranalytics.com/careers/",0,0,"United States",C],
+["Chetu","IT services","Chetu India","Noida","",0,0,"United States",C],
+["Unisys","IT services","Unisys India","Bengaluru, Hyderabad","https://www.unisys.com/careers/",0,0,"United States",M],
+["R1 RCM","Healthcare operations","R1 India","Gurugram, Noida, Chennai","",0,0,"United States",L],
+// Foreign-incorporated, US-run
+["Aon","Insurance broking","Aon India","Gurugram, Noida, Mumbai, Bengaluru, Chennai","https://jobs.aon.com/",0,0,"UK / Ireland (US-run)",L],
+["WTW","Insurance broking","WTW India","Mumbai, Thane, Gurugram","https://careers.wtwco.com/",0,0,"UK / Ireland (US-run)",L],
+["Linde","Industrial gases","Linde Global Support Services","Kolkata","",0,0,"UK / Ireland (US-run)",L],
+["Eaton","Industrial","Eaton India Innovation Center","Pune","https://www.eaton.com/us/en-us/company/careers.html",0,0,"Ireland (US-run)",L],
+["Johnson Controls","Building tech","Johnson Controls India","Pune","https://jobs.johnsoncontrols.com/",0,0,"Ireland (US-run)",L],
+["TE Connectivity","Industrial / Electronics","TE Connectivity India","Bengaluru","https://careers.te.com/",0,0,"Ireland (US-run)",L],
+["Aptiv","Auto tech","Aptiv India technical centre","Bengaluru","https://www.aptiv.com/en/careers",0,0,"Ireland (US-run)",L],
+["Seagate","Storage","Seagate India","Pune","https://www.seagate.com/careers/",0,0,"Ireland (US-run)",L],
+// Large private and subsidiary tech brands
+["LinkedIn","Tech","LinkedIn India (Microsoft)","Bengaluru, Gurugram, Mumbai","https://careers.linkedin.com/",0,0,"United States",L],
+["Red Hat","Tech","Red Hat India (IBM)","Bengaluru, Pune","https://www.redhat.com/en/jobs",0,0,"United States",L],
+["HARMAN","Auto tech / Audio","HARMAN India (Samsung)","Bengaluru, Pune, Gurugram","https://jobs.harman.com/",0,0,"United States",L],
+["Infor","Enterprise software","Infor India (Koch)","Hyderabad, Bengaluru","https://www.infor.com/about/careers",0,0,"United States",L],
+["Koch Business Solutions","Conglomerate","Koch Business Solutions India","Bengaluru","https://jobs.kochcareers.com/",0,0,"United States",L],
+["Cargill","Agribusiness","Cargill Business Services India","Bengaluru, Gurugram","https://www.cargill.com/careers",0,0,"United States",L],
+["Bechtel","Engineering","Bechtel India","Gurugram","https://jobs.bechtel.com/",0,0,"United States",L],
+["Nielsen","Media research","Nielsen India","Bengaluru, Mumbai, Vadodara","",0,0,"United States",L],
+["SAS","Analytics software","SAS R&D India","Pune, Mumbai","https://www.sas.com/en_us/careers.html",0,0,"United States",L],
+["MathWorks","Software","MathWorks India","Bengaluru, Hyderabad","https://www.mathworks.com/company/jobs/",0,0,"United States",L],
+["UKG","HR tech","UKG India","Noida","https://www.ukg.com/careers",0,0,"United States",L],
+["Blue Yonder","Supply-chain software","Blue Yonder India","Bengaluru, Hyderabad","",0,0,"United States",L],
+["Cloud Software Group","Enterprise software","Citrix & TIBCO India","Bengaluru, Pune","",0,0,"United States",L],
+["McAfee","Cybersecurity","McAfee India","Bengaluru","https://careers.mcafee.com/",0,0,"United States",L],
+["Trellix","Cybersecurity","Trellix India","Bengaluru","https://www.trellix.com/about/careers/",0,0,"United States",M],
+["Providence","Healthcare","Providence India","Hyderabad","",0,0,"United States",L],
+["athenahealth","Health tech","athenahealth India","Chennai, Pune, Bengaluru","https://www.athenahealth.com/careers",0,0,"United States",L],
+["Cotiviti","Health tech","Cotiviti India","Hyderabad","",0,0,"United States",L],
+["eClinicalWorks","Health tech","eClinicalWorks India","Ahmedabad, Mumbai","",0,0,"United States",L],
+["Sandisk","Storage","Sandisk India","Bengaluru","",0,0,"United States",L],
+// Listed mid-size software and hardware
+["Freshworks","SaaS","Freshworks India","Chennai, Bengaluru, Hyderabad","https://www.freshworks.com/company/careers/",0,0,"United States",M],
+["Sprinklr","SaaS","Sprinklr India","Gurugram, Bengaluru","https://www.sprinklr.com/careers/",0,0,"United States",M],
+["Cvent","Event tech","Cvent India","Gurugram","https://www.cvent.com/en/careers",0,0,"United States",M],
+["Pegasystems","Enterprise software","Pega India","Hyderabad, Bengaluru","https://www.pega.com/about/careers",0,0,"United States",M],
+["Manhattan Associates","Supply-chain software","Manhattan India","Bengaluru","",0,0,"United States",M],
+["BMC Software","Enterprise software","BMC India","Pune","https://www.bmc.com/careers.html",0,0,"United States",M],
+["Teradata","Data platform","Teradata India","Hyderabad, Mumbai","https://careers.teradata.com/",0,0,"United States",M],
+["Cloudera","Data platform","Cloudera India","Bengaluru","https://www.cloudera.com/careers.html",0,0,"United States",M],
+["Confluent","Data streaming","Confluent India","Bengaluru","https://careers.confluent.io/",0,0,"United States",M],
+["Commvault","Data protection","Commvault India","Bengaluru, Hyderabad","https://www.commvault.com/careers",0,0,"United States",M],
+["Cohesity","Data protection","Cohesity India","Pune, Bengaluru","https://www.cohesity.com/company/careers/",0,0,"United States",M],
+["Rubrik","Data security","Rubrik India","Bengaluru","https://www.rubrik.com/company/careers",0,0,"United States",M],
+["New Relic","Observability","New Relic India","Bengaluru, Hyderabad","https://newrelic.com/about/careers",0,0,"United States",M],
+["Zendesk","SaaS","Zendesk India","Pune, Bengaluru","https://www.zendesk.com/jobs/",0,0,"United States",M],
+["Ivanti","IT software","Ivanti India","Bengaluru","https://www.ivanti.com/company/careers",0,0,"United States",M],
+["Qualys","Cybersecurity","Qualys India","Pune","https://www.qualys.com/careers/",0,0,"United States",M],
+["SonicWall","Cybersecurity","SonicWall India","Bengaluru, Pune","",0,1,"United States",M],
+["Progress Software","Software","Progress India","Bengaluru, Hyderabad","https://www.progress.com/company/careers",0,0,"United States",M],
+["Precisely","Data software","Precisely India","Bengaluru, Noida","",0,0,"United States",M],
+["Avalara","Tax software","Avalara India","Pune","",0,0,"United States",M],
+["Yardi","Property software","Yardi India","Pune, Bengaluru","https://www.yardi.com/careers/",0,0,"United States",M],
+["RealPage","Property software","RealPage India","Hyderabad","https://www.realpage.com/careers/",0,0,"United States",M],
+["MRI Software","Property software","MRI Software India","Bengaluru, Gurugram","",0,0,"United States",M],
+["PowerSchool","Education software","PowerSchool India","Bengaluru","",0,0,"United States",M],
+["Ellucian","Education software","Ellucian India","Bengaluru","",0,0,"United States",M],
+["Anthology","Education software","Anthology India","Bengaluru, New Delhi","",0,0,"United States",M],
+["Chegg","Education","Chegg India","New Delhi","",0,0,"United States",M],
+["Blackbaud","Software","Blackbaud India GCC","Hyderabad","",0,1,"United States",M],
+["CDK Global","Auto software","CDK India","Hyderabad, Pune","",0,0,"United States",M],
+["CSG","Billing software","CSG India","Bengaluru","",0,0,"United States",M],
+["ConnectWise","IT software","ConnectWise India","Mumbai, Pune","",0,0,"United States",M],
+["JAGGAER","Procurement software","JAGGAER India","Pune, Hyderabad","",0,0,"United States",M],
+["Solera","Auto software","Solera India","Bengaluru","",0,0,"United States",M],
+["Veradigm","Health tech","Veradigm India","Pune, Bengaluru","",0,0,"United States",M],
+["Greenway Health","Health tech","Greenway India","Bengaluru","",0,0,"United States",M],
+["Fareportal","Travel tech","Fareportal India","Gurugram","",0,0,"United States",M],
+["BOLD","Career tech","BOLD India","Noida","",0,0,"United States",M],
+["PubMatic","Ad tech","PubMatic India","Pune","https://pubmatic.com/careers/",0,0,"United States",M],
+["Zeta Global","Marketing tech","Zeta Global India","Hyderabad, Bengaluru","",0,0,"United States",M],
+["Eventbrite","Consumer tech","Eventbrite India","Bengaluru","https://www.eventbrite.com/careers/",0,0,"United States",M],
+["Newfold Digital","Web hosting","Newfold Digital India","Mumbai","",0,0,"United States",M],
+["Pitney Bowes","Tech / Logistics","Pitney Bowes India","Noida","",0,0,"United States",M],
+["Silicon Labs","Semiconductors","Silicon Labs India","Hyderabad","https://www.silabs.com/about-us/careers",0,0,"United States",M],
+["Rambus","Semiconductors","Rambus India","Bengaluru","",0,0,"United States",M],
+["Synaptics","Semiconductors","Synaptics India","Bengaluru","",0,0,"United States",M],
+["Xperi","Tech","Xperi India","Bengaluru","",0,0,"United States",M],
+["Mavenir","Telecom software","Mavenir India","Bengaluru","",0,0,"United States",M],
+["Netcracker","Telecom software","Netcracker India","Hyderabad","",0,0,"United States",M],
+["Riverbed","Networking","Riverbed India","Bengaluru","",0,0,"United States",M],
+["Verint","Customer-engagement software","Verint India","Bengaluru","",0,0,"United States",M],
+["Avaya","Communications","Avaya India","Pune","",0,0,"United States",M],
+["Enphase Energy","Clean energy tech","Enphase India","Bengaluru","https://enphase.com/careers",0,0,"United States",M],
+["ChargePoint","EV charging","ChargePoint India","Bengaluru","",0,0,"United States",M],
+["ABC Fitness","SaaS","ABC Fitness India","Bengaluru","",0,0,"United States",M],
+// Scaleups and startups with India engineering teams
+["Stripe","Fintech","Stripe India","Bengaluru","https://stripe.com/jobs",0,0,"United States",S],
+["Databricks","Data / AI","Databricks Bengaluru Development Center","Bengaluru","https://www.databricks.com/company/careers",0,0,"United States",S],
+["Rippling","HR tech","Rippling India","Bengaluru","https://www.rippling.com/careers",0,0,"United States",S],
+["Postman","API platform","Postman India","Bengaluru","https://www.postman.com/company/careers/",0,0,"United States",S],
+["ThoughtSpot","Analytics","ThoughtSpot India","Bengaluru, Hyderabad","https://www.thoughtspot.com/careers",0,0,"United States",S],
+["Tekion","Auto software","Tekion India","Bengaluru, Chennai","https://tekion.com/careers",0,0,"United States",S],
+["o9 Solutions","Planning software","o9 India","Bengaluru","https://o9solutions.com/careers/",0,0,"United States",S],
+["HighRadius","Fintech SaaS","HighRadius India","Hyderabad, Bhubaneswar","https://www.highradius.com/careers/",0,0,"United States",S],
+["Highspot","Sales software","Highspot India","Hyderabad","https://www.highspot.com/careers/",0,0,"United States",S],
+["Gainsight","Customer-success software","Gainsight India","Hyderabad","https://www.gainsight.com/careers/",0,0,"United States",S],
+["Harness","DevOps","Harness India","Bengaluru","https://www.harness.io/company/careers",0,0,"United States",S],
+["Glean","AI / Search","Glean India","Bengaluru","https://www.glean.com/careers",0,0,"United States",S],
+["Whatfix","SaaS","Whatfix India","Bengaluru","https://whatfix.com/careers/",0,0,"United States",S],
+["Uniphore","AI","Uniphore India","Chennai, Bengaluru","https://www.uniphore.com/careers/",0,0,"United States",S],
+["Kore.ai","AI","Kore.ai India","Hyderabad","https://kore.ai/careers/",0,0,"United States",S],
+["Icertis","Contract software","Icertis India","Pune, Hyderabad","https://www.icertis.com/company/careers/",0,0,"United States",S],
+["Druva","Data protection","Druva India","Pune","https://www.druva.com/about/careers",0,0,"United States",S],
+["Innovaccer","Health tech","Innovaccer India","Noida, Bengaluru","https://innovaccer.com/careers",0,0,"United States",S],
+["HackerRank","HR tech","HackerRank India","Bengaluru","https://www.hackerrank.com/careers",0,0,"United States",S],
+["Hasura","Developer tools","Hasura India","Bengaluru","",0,0,"United States",S],
+["Couchbase","Database","Couchbase India","Bengaluru","",0,0,"United States",S],
+["Sumo Logic","Observability","Sumo Logic India","Noida","",0,0,"United States",S],
+["Gupshup","Messaging / AI","Gupshup India","Mumbai, Bengaluru, Gurugram","https://www.gupshup.io/careers",0,0,"United States",S],
+["Plivo","Communications API","Plivo India","Bengaluru","",0,0,"United States",S],
+["JumpCloud","IT software","JumpCloud India","Bengaluru","",0,0,"United States",S],
+["6sense","Sales software","6sense India","Bengaluru, Pune","",0,0,"United States",S],
+["CommerceIQ","E-commerce software","CommerceIQ India","Bengaluru","",0,0,"United States",S],
+["FourKites","Supply-chain software","FourKites India","Chennai","",0,0,"United States",S],
+["Netradyne","AI / Fleet tech","Netradyne India","Bengaluru","",0,0,"United States",S],
+["Poshmark","E-commerce","Poshmark India (Naver)","Chennai","",0,0,"United States",S],
+["Hudl","Sports tech","Hudl India","Mumbai","",0,0,"United States",S],
+["Sonatype","Software security","Sonatype India GCC","Hyderabad","",0,1,"United States",S],
+["Deepwatch","Cybersecurity","Deepwatch India GCC","Bengaluru","",0,1,"United States",S],
+["Augury","Industrial AI","Augury India hub","Bengaluru","",0,1,"United States",S],
+["OpenAI","AI","OpenAI India","New Delhi","https://openai.com/careers/",0,1,"United States",S],
+["Anthropic","AI","Anthropic India","Bengaluru","https://www.anthropic.com/careers",0,1,"United States",S],
+["Scale AI","AI data","Scale AI India","Bengaluru","",0,0,"United States",S],
+// Remote-first
+["GitLab","DevOps","Fully remote team","Remote (India)","https://about.gitlab.com/jobs/",0,0,"United States",R],
+["Automattic","Web software (WordPress)","Fully remote team","Remote (India)","https://automattic.com/work-with-us/",0,0,"United States",R],
+["Deel","HR tech","Distributed team","Remote (India)","https://www.deel.com/careers",0,0,"United States",R],
+["Turing","Talent marketplace","Remote engineering roles","Remote (India)","https://www.turing.com/jobs",0,0,"United States",R],
+["Toptal","Talent marketplace","Remote freelance network","Remote (India)","https://www.toptal.com/careers",0,0,"United States",R]
+];
+
+// Asia-Pacific, Canada, Israel and the Middle East
+const WORLD = [
+// Japan
+["Sony","Electronics / Tech","Sony India Software Centre","Bengaluru","",0,0,"Japan",L],
+["Rakuten","Internet","Rakuten India","Bengaluru","",0,0,"Japan",L],
+["NTT DATA","IT services","NTT DATA India","Bengaluru, Pune, Noida, Gurugram, Hyderabad, Chennai, Mumbai","https://www.nttdata.com/global/en/careers",0,0,"Japan",L],
+["Fujitsu","IT services","Fujitsu Global Delivery India","Bengaluru, Pune, Noida, Chennai","",0,0,"Japan",L],
+["NEC","IT / Telecom","NEC Corporation India","Noida, Chennai","",0,0,"Japan",L],
+["Hitachi","Conglomerate / Tech","Hitachi Vantara, Hitachi Payment Services, Hitachi India","Hyderabad, Bengaluru, Pune, Chennai, Gurugram","",0,0,"Japan",L],
+["Indeed","Job search","Indeed India (Recruit)","Hyderabad, Bengaluru","https://www.indeed.jobs/",0,0,"Japan",L],
+["Toyota","Auto","Toyota Connected India & Toyota Kirloskar","Bengaluru","",0,0,"Japan",L],
+["Panasonic","Electronics","Panasonic India & R&D","Gurugram, Bengaluru","",0,0,"Japan",L],
+["Toshiba","Electronics","Toshiba Software India","Bengaluru","",0,0,"Japan",L],
+["Renesas","Semiconductors","Renesas India","Bengaluru, Noida, Hyderabad","https://www.renesas.com/en/about/careers",0,0,"Japan",L],
+["Denso","Auto","Denso India","Gurugram, Bengaluru","",0,0,"Japan",L],
+["Daikin","HVAC","Daikin India GCC & R&D","Gurugram","",0,0,"Japan",L],
+["Yamaha Motor","Auto / IT","Yamaha Motor Solutions India","Faridabad, Chennai","",0,0,"Japan",L],
+["MUFG","Banking","MUFG Global Service","Bengaluru","",0,0,"Japan",L],
+["Nomura","Banking","Nomura India","Mumbai","",0,0,"Japan",L],
+["Mizuho","Banking","Mizuho Global Services India","Chennai","",0,0,"Japan",L],
+["Dai-ichi Life","Insurance","Dai-ichi Life GCC","Hyderabad","",0,1,"Japan",L],
+["Eisai","Pharma","Eisai Knowledge Centre India","Visakhapatnam","",0,0,"Japan",L],
+// South Korea
+["Samsung","Electronics / Tech","Samsung R&D Institute India & Samsung Semiconductor India","Bengaluru, Noida, Delhi","https://www.samsung.com/in/about-us/careers/",1,0,"South Korea",L],
+["Samsung SDS","IT services","Samsung SDS India","Gurugram","",0,0,"South Korea",L],
+["LG","Electronics / Tech","LG Soft India & LG Electronics R&D","Bengaluru, Noida","",0,0,"South Korea",L],
+["Hyundai Motor","Auto","Hyundai Motor India Engineering","Hyderabad","",0,0,"South Korea",L],
+["Hyundai Mobis","Auto","Hyundai Mobis India technical centre","Hyderabad","",0,0,"South Korea",L],
+// China, Taiwan, Hong Kong
+["Lenovo","Tech","Lenovo India","Bengaluru","https://jobs.lenovo.com/",0,0,"China",L],
+["Xiaomi","Electronics","Xiaomi India R&D","Bengaluru","",0,0,"China",L],
+["OPPO","Electronics","OPPO India R&D","Hyderabad","",0,0,"China",L],
+["Huawei","Telecom","Huawei India R&D","Bengaluru","",0,0,"China",L],
+["MediaTek","Semiconductors","MediaTek India","Bengaluru, Noida","",0,0,"Taiwan",L],
+["Foxconn","Electronics manufacturing","Foxconn India","Chennai","",0,0,"Taiwan",L],
+// Singapore & Southeast Asia
+["DBS Bank","Banking","DBS Tech India","Hyderabad, Mumbai","https://www.dbs.com/careers",0,0,"Singapore",L],
+["Grab","Consumer tech","Grab India engineering centre","Bengaluru","https://www.grab.careers/",0,0,"Singapore",L],
+["Flex","Electronics manufacturing","Flex India","Chennai, Bengaluru","",0,0,"Singapore",L],
+["Azentio","Banking software","Azentio India","Chennai, Mumbai","",0,0,"Singapore",S],
+["GoTo (Gojek)","Consumer tech","Gojek India engineering","Bengaluru, Gurugram","",0,0,"Indonesia",L],
+// Australia
+["ANZ","Banking","ANZ Bengaluru","Bengaluru","https://www.anz.com/careers/",0,0,"Australia",L],
+["Commonwealth Bank","Banking","CBA India technology hub","Bengaluru","",0,0,"Australia",L],
+["NAB","Banking","NAB Innovation Centre India","Gurugram, Bengaluru","",0,0,"Australia",L],
+["Macquarie Group","Banking / Asset management","Macquarie India","Gurugram, Mumbai","https://www.macquarie.com/careers",0,0,"Australia",L],
+["Telstra","Telecom","Telstra India","Bengaluru, Hyderabad","",0,0,"Australia",L],
+["WiseTech Global","Logistics software","WiseTech India","Bengaluru","",0,0,"Australia",L],
+["IDP Education","Education","IDP Digital Campus","Chennai","",0,0,"Australia",L],
+["Woodside Energy","Energy","Woodside GCC (planned)","Bengaluru","",0,1,"Australia",L],
+// Canada
+["CGI","IT services","CGI India","Bengaluru, Hyderabad, Chennai, Mumbai","https://www.cgi.com/en/careers",0,0,"Canada",L],
+["Thomson Reuters","Information / Tech","Thomson Reuters India","Bengaluru, Hyderabad","https://careers.thomsonreuters.com/",0,0,"Canada",L],
+["OpenText","Enterprise software","OpenText India","Bengaluru, Hyderabad","https://careers.opentext.com/",0,0,"Canada",L],
+["Sun Life","Insurance","Sun Life Global Solutions","Gurugram","",0,0,"Canada",L],
+["CIBC","Banking","CIBC India GCC","Hyderabad","",0,1,"Canada",L],
+["Magna International","Auto","Magna India","Bengaluru, Pune","",0,0,"Canada",L],
+["SOTI","Software","SOTI India","Gurugram","",0,0,"Canada",S],
+["Assent","Supply-chain software","Assent India","Pune","",0,0,"Canada",S],
+["Altera Digital Health","Health tech","Altera India","Pune","",0,0,"Canada",S],
+// Israel
+["Amdocs","Telecom software","Amdocs India","Pune, Gurugram","https://jobs.amdocs.com/",0,0,"Israel",L],
+["NICE","Customer-engagement software","NICE India","Pune","",0,0,"Israel",L],
+["Check Point Software","Cybersecurity","Check Point India","Bengaluru","",0,0,"Israel",L],
+["Sapiens","Insurance software","Sapiens India","Bengaluru","",0,0,"Israel",S],
+// Middle East
+["DP World","Logistics","DP World GCC","Mumbai","",0,0,"UAE",L],
+["DAMAC","Real estate","DAMAC India GCC","Noida","",0,1,"UAE",L],
+["Media.net","Ad tech","Media.net India","Mumbai, Bengaluru","https://careers.media.net/",0,0,"UAE",L],
+["Qatar Airways","Airline","Qatar Airways India","Mumbai","",0,0,"Qatar",L],
+["SABIC","Chemicals","SABIC Technology Center","Bengaluru","",0,0,"Saudi Arabia",L]
+];
+
+// Indian companies: IT services, product and consumer tech, fintech and large enterprises
+const IT="IT services", PR="Product & SaaS", CI="Consumer internet", FT="Fintech";
+const INDIA = [
+// IT services and engineering services
+["TCS","IT services","Tata Consultancy Services","Mumbai, Pune, Bengaluru, Chennai, Hyderabad, Kolkata, Noida, Gurugram","https://www.tcs.com/careers",0,0,"Mumbai",IT],
+["Infosys","IT services","Infosys","Bengaluru, Mysuru, Pune, Hyderabad, Chennai, Chandigarh","https://www.infosys.com/careers/",0,0,"Bengaluru",IT],
+["Wipro","IT services","Wipro","Bengaluru, Hyderabad, Pune, Chennai, Kolkata, Noida, Gurugram","https://careers.wipro.com/",0,0,"Bengaluru",IT],
+["HCLTech","IT services","HCLTech","Noida, Bengaluru, Chennai, Hyderabad, Gurugram, Lucknow, Madurai, Pune","https://www.hcltech.com/careers",0,0,"Noida",IT],
+["Tech Mahindra","IT services","Tech Mahindra","Pune, Noida, Hyderabad, Bengaluru, Chennai, Mumbai","https://careers.techmahindra.com/",0,0,"Pune",IT],
+["LTIMindtree","IT services","LTIMindtree","Mumbai, Bengaluru, Pune, Chennai, Hyderabad","https://www.ltimindtree.com/careers/",0,0,"Mumbai",IT],
+["Persistent Systems","IT services","Persistent","Pune, Bengaluru, Hyderabad, Nagpur, Goa","https://www.persistent.com/careers/",0,0,"Pune",IT],
+["Coforge","IT services","Coforge","Noida, Greater Noida, Bengaluru, Pune, Hyderabad","https://www.coforge.com/careers",0,0,"Noida",IT],
+["Mphasis","IT services","Mphasis","Bengaluru, Pune, Chennai, Mumbai","https://careers.mphasis.com/",0,0,"Bengaluru",IT],
+["Hexaware","IT services","Hexaware","Chennai, Navi Mumbai, Pune, Bengaluru, Noida","https://hexaware.com/careers/",0,0,"Navi Mumbai",IT],
+["Birlasoft","IT services","Birlasoft","Noida, Pune, Bengaluru","https://www.birlasoft.com/careers",0,0,"Pune",IT],
+["Zensar","IT services","Zensar","Pune, Bengaluru, Hyderabad","https://www.zensar.com/careers",0,0,"Pune",IT],
+["KPIT Technologies","Auto software","KPIT","Pune, Bengaluru","https://www.kpit.com/careers/",0,0,"Pune",IT],
+["Tata Elxsi","Design & engineering","Tata Elxsi","Bengaluru, Pune, Chennai, Thiruvananthapuram","https://www.tataelxsi.com/careers",0,0,"Bengaluru",IT],
+["L&T Technology Services","Engineering services","LTTS","Vadodara, Bengaluru, Mumbai, Chennai, Pune, Hyderabad","https://www.ltts.com/careers",0,0,"Vadodara",IT],
+["Tata Technologies","Engineering services","Tata Technologies","Pune, Bengaluru","https://www.tatatechnologies.com/careers/",0,0,"Pune",IT],
+["Cyient","Engineering services","Cyient","Hyderabad, Bengaluru","https://www.cyient.com/careers",0,0,"Hyderabad",IT],
+["Happiest Minds","IT services","Happiest Minds","Bengaluru, Noida, Pune, Hyderabad, Chennai","https://www.happiestminds.com/careers/",0,0,"Bengaluru",IT],
+["Sonata Software","IT services","Sonata Software","Bengaluru, Hyderabad","https://www.sonata-software.com/careers",0,0,"Bengaluru",IT],
+["Mastek","IT services","Mastek","Mumbai, Ahmedabad, Noida, Chennai, Pune","https://www.mastek.com/careers",0,0,"Mumbai",IT],
+["R Systems","IT services","R Systems","Noida, Pune, Chennai","",0,0,"Noida",IT],
+["Sasken","Engineering services","Sasken","Bengaluru, Chennai, Pune","",0,0,"Bengaluru",IT],
+["Fractal Analytics","Analytics / AI","Fractal","Mumbai, Bengaluru, Gurugram, Pune, Chennai","https://fractal.ai/careers/",0,0,"Mumbai",IT],
+["LatentView Analytics","Analytics","LatentView","Chennai, Bengaluru","",0,0,"Chennai",IT],
+["Mu Sigma","Analytics","Mu Sigma","Bengaluru","",0,0,"Bengaluru",IT],
+// Product and SaaS
+["Zoho","SaaS","Zoho","Chennai, Tenkasi, Bengaluru","https://www.zoho.com/careers/",0,0,"Chennai",PR],
+["BrowserStack","Developer tools","BrowserStack","Mumbai, Bengaluru","https://www.browserstack.com/careers",0,0,"Mumbai",PR],
+["Chargebee","SaaS","Chargebee","Chennai, Bengaluru","https://www.chargebee.com/careers/",0,0,"Chennai",PR],
+["Darwinbox","HR tech","Darwinbox","Hyderabad","https://darwinbox.com/careers",0,0,"Hyderabad",PR],
+["LeadSquared","SaaS","LeadSquared","Bengaluru","",0,0,"Bengaluru",PR],
+["MoEngage","Marketing tech","MoEngage","Bengaluru","",0,0,"Bengaluru",PR],
+["CleverTap","Marketing tech","CleverTap","Mumbai, Bengaluru","",0,0,"Mumbai",PR],
+["Capillary Technologies","Retail tech","Capillary","Bengaluru","",0,0,"Bengaluru",PR],
+["Amagi","Media tech","Amagi","Bengaluru","",0,0,"Bengaluru",PR],
+["Rocketlane","SaaS","Rocketlane","Chennai","",0,0,"Chennai",PR],
+["Sprinto","Compliance SaaS","Sprinto","Bengaluru","",0,0,"Bengaluru",PR],
+["Locus","Logistics tech","Locus","Bengaluru","",0,0,"Bengaluru",PR],
+["Atlan","Data software","Atlan (remote-first)","Remote (India)","",0,0,"Remote",PR],
+["Intellect Design Arena","Banking software","Intellect","Chennai, Mumbai","",0,0,"Chennai",PR],
+["Newgen Software","Enterprise software","Newgen","Noida, Chennai, Mumbai","",0,0,"New Delhi",PR],
+["Nucleus Software","Banking software","Nucleus Software","Noida","",0,0,"Noida",PR],
+["Tanla Platforms","Communications tech","Tanla","Hyderabad","",0,0,"Hyderabad",PR],
+["Route Mobile","Communications tech","Route Mobile","Mumbai","",0,0,"Mumbai",PR],
+["Affle","Ad tech","Affle","Gurugram, Bengaluru","",0,0,"Gurugram",PR],
+["InMobi / Glance","Ad tech / Consumer tech","InMobi & Glance","Bengaluru","",0,0,"Bengaluru",PR],
+["MapmyIndia","Maps / Tech","CE Info Systems","New Delhi","",0,0,"New Delhi",PR],
+["Quick Heal","Cybersecurity","Quick Heal","Pune","",0,0,"Pune",PR],
+["Sarvam AI","AI","Sarvam AI","Bengaluru","",0,0,"Bengaluru",PR],
+["Krutrim","AI","Krutrim (Ola group)","Bengaluru","",0,0,"Bengaluru",PR],
+// Consumer internet
+["Flipkart","E-commerce","Flipkart (Walmart)","Bengaluru","https://www.flipkartcareers.com/",0,0,"Bengaluru",CI],
+["Myntra","E-commerce","Myntra (Flipkart group)","Bengaluru","",0,0,"Bengaluru",CI],
+["Swiggy","Food & quick commerce","Swiggy","Bengaluru","https://careers.swiggy.com/",0,0,"Bengaluru",CI],
+["Eternal (Zomato)","Food & quick commerce","Zomato, Blinkit, District, Hyperpure","Gurugram","",0,0,"Gurugram",CI],
+["Zepto","Quick commerce","Zepto","Mumbai, Bengaluru","",0,0,"Mumbai",CI],
+["Meesho","E-commerce","Meesho","Bengaluru","",0,0,"Bengaluru",CI],
+["Nykaa","E-commerce","Nykaa","Mumbai","",0,0,"Mumbai",CI],
+["Lenskart","E-commerce / Retail","Lenskart","Gurugram, Bengaluru","",0,0,"Gurugram",CI],
+["FirstCry","E-commerce","FirstCry","Pune","",0,0,"Pune",CI],
+["Info Edge","Internet classifieds","Naukri, 99acres, Jeevansathi, Shiksha","Noida, Bengaluru","https://careers.infoedge.com/",0,0,"Noida",CI],
+["MakeMyTrip","Travel tech","MakeMyTrip, Goibibo, redBus","Gurugram, Bengaluru","https://careers.makemytrip.com/",0,0,"Gurugram",CI],
+["ixigo","Travel tech","ixigo","Gurugram","",0,0,"Gurugram",CI],
+["OYO","Travel tech","OYO","Gurugram","",0,0,"Gurugram",CI],
+["Urban Company","Services marketplace","Urban Company","Gurugram, Bengaluru","",0,0,"Gurugram",CI],
+["Cars24","Auto marketplace","Cars24","Gurugram","",0,0,"Gurugram",CI],
+["Spinny","Auto marketplace","Spinny","Gurugram","",0,0,"Gurugram",CI],
+["CarDekho","Auto marketplace","CarDekho Group","Gurugram, Jaipur","",0,0,"Gurugram",CI],
+["Delhivery","Logistics tech","Delhivery","Gurugram","",0,0,"Gurugram",CI],
+["Rapido","Mobility","Rapido","Bengaluru","",0,0,"Bengaluru",CI],
+["Ola","Mobility","ANI Technologies","Bengaluru","",0,0,"Bengaluru",CI],
+["Ola Electric","EV","Ola Electric","Bengaluru","",0,0,"Bengaluru",CI],
+["Ather Energy","EV","Ather Energy","Bengaluru","",0,0,"Bengaluru",CI],
+["Udaan","B2B e-commerce","Udaan","Bengaluru","",0,0,"Bengaluru",CI],
+["Zetwerk","Manufacturing marketplace","Zetwerk","Bengaluru","",0,0,"Bengaluru",CI],
+["OfBusiness","B2B commerce","OfBusiness","Gurugram","",0,0,"Gurugram",CI],
+["Moglix","B2B commerce","Moglix","Noida","",0,0,"Noida",CI],
+["Licious","D2C","Licious","Bengaluru","",0,0,"Bengaluru",CI],
+["Tata Digital","E-commerce","Tata Neu, BigBasket, Tata 1mg, Croma","Bengaluru, Gurugram, Mumbai","",0,0,"Mumbai",CI],
+["PharmEasy","Health tech","PharmEasy","Mumbai","",0,0,"Mumbai",CI],
+["Practo","Health tech","Practo","Bengaluru","",0,0,"Bengaluru",CI],
+["PhysicsWallah","Ed tech","PhysicsWallah","Noida","",0,0,"Noida",CI],
+["upGrad","Ed tech","upGrad","Mumbai, Bengaluru, Noida","",0,0,"Mumbai",CI],
+["ShareChat","Social media","Mohalla Tech","Bengaluru","",0,0,"Bengaluru",CI],
+["VerSe Innovation","Content tech","Dailyhunt & Josh","Bengaluru","",0,0,"Bengaluru",CI],
+["Dream Sports","Gaming / Sports tech","Dream11, FanCode","Mumbai","",0,0,"Mumbai",CI],
+["Games24x7","Gaming","Games24x7","Mumbai, Bengaluru","",0,0,"Mumbai",CI],
+["Times Internet","Media tech","Times Internet","Noida","",0,0,"Noida",CI],
+["JioStar","Media / Streaming","JioHotstar","Mumbai, Bengaluru","",0,0,"Mumbai",CI],
+// Fintech and insurance tech
+["PhonePe","Payments","PhonePe (Walmart group)","Bengaluru, Pune","https://www.phonepe.com/careers/",0,0,"Bengaluru",FT],
+["Paytm","Payments","One97 Communications","Noida, Bengaluru","",0,0,"Noida",FT],
+["Razorpay","Payments","Razorpay","Bengaluru","https://razorpay.com/jobs/",0,0,"Bengaluru",FT],
+["CRED","Fintech","CRED","Bengaluru","https://careers.cred.club/",0,0,"Bengaluru",FT],
+["Groww","Investing","Groww","Bengaluru","https://groww.in/careers",0,0,"Bengaluru",FT],
+["Zerodha","Brokerage","Zerodha","Bengaluru","https://zerodha.com/careers/",0,0,"Bengaluru",FT],
+["Upstox","Brokerage","Upstox","Mumbai","",0,0,"Mumbai",FT],
+["Angel One","Brokerage","Angel One","Mumbai, Bengaluru","",0,0,"Mumbai",FT],
+["Pine Labs","Payments","Pine Labs","Noida, Bengaluru","https://www.pinelabs.com/careers",0,0,"Noida",FT],
+["Juspay","Payments","Juspay","Bengaluru","",0,0,"Bengaluru",FT],
+["MobiKwik","Payments","MobiKwik","Gurugram","",0,0,"Gurugram",FT],
+["BharatPe","Payments","BharatPe","New Delhi","",0,0,"New Delhi",FT],
+["Zeta","Banking tech","Zeta","Bengaluru, Hyderabad","",0,0,"Bengaluru",FT],
+["Navi","Fintech","Navi","Bengaluru","",0,0,"Bengaluru",FT],
+["slice","Fintech / Banking","slice","Bengaluru","",0,0,"Bengaluru",FT],
+["PB Fintech","Insurance tech","Policybazaar, Paisabazaar","Gurugram","",0,0,"Gurugram",FT],
+["Acko","Insurance tech","Acko","Bengaluru","",0,0,"Bengaluru",FT],
+["Go Digit","Insurance tech","Go Digit General Insurance","Bengaluru, Pune","",0,0,"Bengaluru",FT],
+// Large enterprises with big tech teams
+["Jio Platforms","Telecom / Tech","Jio Platforms","Navi Mumbai, Bengaluru, Hyderabad","https://careers.jio.com/",0,0,"Navi Mumbai",L],
+["Bharti Airtel","Telecom / Tech","Airtel & Airtel Digital","Gurugram, Bengaluru","",0,0,"New Delhi",L],
+["HDFC Bank","Banking","HDFC Bank","Mumbai, Bengaluru, Chennai","",0,0,"Mumbai",L],
+["ICICI Bank","Banking","ICICI Bank","Mumbai, Hyderabad, Bengaluru","",0,0,"Mumbai",L],
+["Axis Bank","Banking","Axis Bank","Mumbai, Bengaluru","",0,0,"Mumbai",L],
+["Kotak Mahindra Bank","Banking","Kotak Mahindra Bank","Mumbai, Bengaluru","",0,0,"Mumbai",L],
+["Bajaj Finserv","Financial services","Bajaj Finserv & Bajaj Finance","Pune","",0,0,"Pune",L],
+["Maruti Suzuki","Auto","Maruti Suzuki (digital & connected cars)","Gurugram, Manesar","",0,0,"New Delhi",L]
+];
+
+const NCR = /Gurugram|Noida|Delhi|Faridabad|Ghaziabad|Manesar/;
 const $ = id => document.getElementById(id);
 let done = {};
 try { done = JSON.parse(localStorage.getItem("f500-done") || "{}") || {}; } catch(e) { done = {}; }
@@ -648,19 +1094,33 @@ function save(){ try { localStorage.setItem("f500-done", JSON.stringify(done)); 
 
 const esc = s => s.replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const host = u => { try { return new URL(u).hostname.replace(/^www\./,""); } catch(e){ return u; } };
+// Rows without a confirmed careers URL link to a LinkedIn job search for the company, located in India
+const LI = name => "https://www.linkedin.com/jobs/search/?keywords=" + encodeURIComponent(name.replace(/\s*\(.*\)$/,"")) + "&location=India";
+for (const D of [DATA, EU, USX, WORLD, INDIA]) for (const d of D) if (!d[4]) { d[4] = LI(d[0]); d[5] = 1; d[9] = 1; }
 
 const TABS = {
-  us: { data: DATA, key: "", title: "Fortune 1000 companies hiring in India",
+  us: { data: DATA, key: "", btn: "US Fortune 1000", title: "Fortune 1000 companies hiring in India",
         lede: "US Fortune 500 and next-500 companies with a global capability centre (GCC), tech centre or major office in India, with a link to each company's careers search. Delhi NCR locations are highlighted. Tick a row to mark it as checked; the tick is saved in this browser only." },
-  europe: { data: EU, key: "eu:", title: "European companies hiring in India",
-        lede: "European companies with an Indian GCC, tech centre or office, plus European scaleups with India teams and remote-first companies that hire in India. Delhi NCR locations are highlighted. Ticks are saved in this browser only." }
+  usx: { data: USX, key: "usx:", btn: "US: other companies", title: "More US companies hiring in India",
+        country: "All countries", small: "mid-size, scaleups, services & remote",
+        lede: "US companies that aren't on the Fortune 1000 but run India GCCs, engineering centres or offices: private giants like Empower, Fidelity, Vanguard and Bloomberg, consulting and services firms, listed mid-size software companies, venture-backed scaleups and remote-first teams. Also US-run firms incorporated abroad, such as Accenture and Aon." },
+  europe: { data: EU, key: "eu:", btn: "European companies", title: "European companies hiring in India",
+        country: "All countries", small: "scaleups & remote-first",
+        lede: "European companies with an Indian GCC, tech centre or office, plus European scaleups with India teams and remote-first companies that hire in India. Delhi NCR locations are highlighted. Ticks are saved in this browser only." },
+  world: { data: WORLD, key: "row:", btn: "Asia-Pacific & rest of world", title: "Asia-Pacific, Canadian, Israeli and Middle East companies hiring in India",
+        country: "All countries", small: "scaleups",
+        lede: "Companies from Japan, Korea, China and Taiwan, Southeast Asia, Australia, Canada, Israel and the Middle East with India GCCs, R&D centres or tech offices. Delhi NCR locations are highlighted." },
+  india: { data: INDIA, key: "in:", btn: "Indian companies", title: "Indian companies hiring tech talent",
+        country: "All HQ cities", small: "product, consumer & fintech",
+        lede: "India-headquartered employers: IT and engineering services firms, product and SaaS companies, consumer-internet and fintech startups and unicorns, and large enterprises with big tech teams. The sector column also shows each company's HQ city. Delhi NCR locations are highlighted." }
 };
-let tab = (location.hash === "#europe") ? "europe" : "us";
+let tab = TABS[location.hash.slice(1)] ? location.hash.slice(1) : "us";
+document.querySelector(".tabs").innerHTML = Object.entries(TABS).map(([k,T])=>`<button type="button" role="tab" id="tab-${k}" data-tab="${k}" aria-selected="false">${esc(T.btn)}</button>`).join("");
 
 function fillSelect(id, values, label){
   const el = $(id), cur = el.value;
   el.innerHTML = `<option value="">${label}</option>` + values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
-  if (values.includes(cur)) el.value = cur;
+  el.value = values.includes(cur) ? cur : "";
 }
 
 function badges(d){
@@ -670,7 +1130,7 @@ function badges(d){
     if (t === "1000") b += '<span class="new off">F501–1000</span>';
     else if (t === "none") b += '<span class="new off">Not on list</span>';
   } else if (d[8] !== L) {
-    b += `<span class="new off">${d[8] === S ? "Scaleup" : "Remote-first"}</span>`;
+    b += `<span class="new off">${esc(d[8] === S ? "Scaleup" : d[8])}</span>`;
   }
   return b;
 }
@@ -682,26 +1142,27 @@ function render(){
   const tier=$("tier").value, country=$("country").value, kind=$("kind").value;
   const rows = D.filter(d=>{
     if (tab==="us" && tier && tierOf(d[0])!==tier) return false;
-    if (tab==="europe" && country && d[7]!==country) return false;
-    if (tab==="europe" && kind && d[8]!==kind) return false;
+    if (T.country && country && d[7]!==country) return false;
+    if (T.country && kind && d[8]!==kind) return false;
     if (sec && d[1]!==sec) return false;
     if (city==="NCR" && !NCR.test(d[3])) return false;
     if (city && city!=="NCR" && !d[3].includes(city)) return false;
     if (newOnly && !d[6]) return false;
     if (hide && done[T.key+d[0]]) return false;
-    if (q && !(d[0]+" "+d[2]+" "+d[3]+" "+d[1]+" "+(d[7]||"")).toLowerCase().includes(q)) return false;
+    if (q && !(d[0]+" "+d[2]+" "+d[3]+" "+d[1]+" "+(d[7]||"")+" "+(d[8]||"")).toLowerCase().includes(q)) return false;
     return true;
   });
   $("rows").innerHTML = rows.map(d=>{
     const k = T.key + d[0];
     const cities = d[3].split(", ").map(c=>NCR.test(c)?`<span class="ncr">${esc(c)}</span>`:esc(c)).join(", ");
-    const country = tab==="europe" ? `<span class="ent">${esc(d[7])}</span>` : "";
+    const country = T.country ? `<span class="ent">${tab==="india"?"HQ ":""}${esc(d[7])}</span>` : "";
+    const flt = d[9] ? "LinkedIn · India" : d[5] ? "India filter" : (d[8]===R ? "Check remote rules" : "Filter to India");
     return `<tr class="${done[k]?"done":""}">
       <td class="chk"><input type="checkbox" id="c-${tab}-${D.indexOf(d)}" data-co="${esc(k)}" ${done[k]?"checked":""} aria-label="Mark ${esc(d[0])} as checked"></td>
       <td><span class="co">${esc(d[0])}</span>${badges(d)}<span class="ent">${esc(d[2])}</span></td>
       <td><span class="sec">${esc(d[1])}</span>${country}</td>
       <td class="cities">${cities}</td>
-      <td><a class="go" href="${esc(d[4])}" target="_blank" rel="noopener">${esc(host(d[4]))} ↗</a><span class="flt ${d[5]?"yes":""}">${d[5]?"India filter":(d[8]===R?"Check remote rules":"Filter to India")}</span></td>
+      <td><a class="go" href="${esc(d[4])}" target="_blank" rel="noopener">${esc(d[9] ? "LinkedIn jobs" : host(d[4]))} ↗</a><span class="flt ${d[5]?"yes":""}">${flt}</span></td>
     </tr>`;
   }).join("");
   $("empty").hidden = rows.length>0;
@@ -718,10 +1179,11 @@ function stats(){
     const t500 = D.filter(d=>tierOf(d[0])==="500").length, t1000 = D.filter(d=>tierOf(d[0])==="1000").length;
     mid = `<span><b>${t500}</b> Fortune 500</span><span><b>${t1000}</b> Fortune 501–1000</span>`;
   } else {
-    const nc = new Set(D.map(d=>d[7])).size, ns = D.filter(d=>d[8]!==L).length;
-    mid = `<span><b>${nc}</b> countries</span><span><b>${ns}</b> scaleups &amp; remote-first</span>`;
+    const nc = new Set(D.map(d=>d[7])).size, ns = D.filter(d=>d[8]!==L && d[8]!==IT).length;
+    mid = `<span><b>${nc}</b> ${tab==="india"?"HQ cities":"countries"}</span><span><b>${ns}</b> ${T.small}</span>`;
   }
-  $("stats").innerHTML = `<span><b>${D.length}</b> companies</span>${mid}<span><b>${ncr}</b> with Delhi NCR offices</span><span><b>${nw}</b> new centres since 2025</span><span><b>${ck}</b> checked</span>`;
+  const all = Object.values(TABS).reduce((n,t)=>n+t.data.length,0);
+  $("stats").innerHTML = `<span><b>${D.length}</b> companies here · ${all} across all tabs</span>${mid}<span><b>${ncr}</b> with Delhi NCR offices</span><span><b>${nw}</b> new centres since 2025</span><span><b>${ck}</b> checked</span>`;
 }
 
 function setTab(t){
@@ -729,15 +1191,16 @@ function setTab(t){
   const T = TABS[t];
   $("title").textContent = T.title;
   $("lede").textContent = T.lede;
-  $("tab-us").setAttribute("aria-selected", t==="us");
-  $("tab-eu").setAttribute("aria-selected", t==="europe");
+  for (const k in TABS) $("tab-"+k).setAttribute("aria-selected", k===t);
   $("tier").hidden = t!=="us";
-  $("country").hidden = t!=="europe";
-  $("kind").hidden = t!=="europe";
-  $("notes-us").hidden = t!=="us";
-  $("notes-eu").hidden = t!=="europe";
+  $("country").hidden = $("kind").hidden = !T.country;
+  document.querySelectorAll(".notes[data-for]").forEach(n=>{ n.hidden = !n.dataset.for.split(" ").includes(t); });
   fillSelect("sector", [...new Set(T.data.map(d=>d[1]))].sort(), "All sectors");
-  if (t==="europe") fillSelect("country", [...new Set(EU.map(d=>d[7]))].sort(), "All countries");
+  if (T.country) {
+    fillSelect("country", [...new Set(T.data.map(d=>d[7]))].sort(), T.country);
+    fillSelect("kind", [...new Set(T.data.map(d=>d[8]))], "All company types");
+  }
+  history.replaceState(null, "", t==="us" ? location.pathname + location.search : "#"+t);
   stats(); render();
 }
 
