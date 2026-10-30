@@ -9,8 +9,10 @@
   var KEY = 'site-theme';
   var PAGES = [
     ['index.html', 'Job tracker', 'Jobs'],
+    ['java-course.html', 'Java course', 'Java'],
     ['dsa-interview-mastery.html', 'Data structures prep', 'DSA'],
-    ['frontend-interview-prep.html', 'Frontend prep', 'Frontend']
+    ['frontend-interview-prep.html', 'Frontend prep', 'Frontend'],
+    ['ddia-course.html', 'DDIA course', 'DDIA']
   ];
   var THEMES = [['light', '☀', 'Light'], ['auto', '◐', 'Auto'], ['dark', '☾', 'Dark']];
   var root = document.documentElement;
